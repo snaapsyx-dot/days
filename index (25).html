@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Год в цветах</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F0E8;--surface:#FDFAF5;--ink:#1A1410;
+  --ink2:#6A5C4E;--ink3:rgba(26,20,16,.25);
+  --line:rgba(26,20,16,.08);--line2:rgba(26,20,16,.18);
+  --awful:#ff0000;--bad:#ff9900;--normal:#e6e600;--good:#00cc00;--super:#0000ff;
+  --cs:28px;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;font-size:13px;display:flex;flex-direction:column}
+button{cursor:pointer;border:none;background:none;font-family:inherit;color:inherit}
+input,textarea{font-family:inherit;color:var(--ink)}
+
+/* LOADING */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:500;transition:opacity .4s}
+#loading.out{opacity:0;pointer-events:none}
+.load-title{font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:300}
+.load-title em{font-style:italic}
+.spin{width:18px;height:18px;border:1.5px solid var(--line2);border-top-color:var(--ink2);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ltxt{font-size:.72rem;color:var(--ink3);text-align:center;max-width:280px;line-height:1.5}
+
+/* HEADER */
+header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--line);padding:0 20px;height:48px;display:flex;align-items:center;gap:14px}
+.hlogo{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:300;margin-right:auto;white-space:nowrap}
+.hlogo em{font-style:italic}
+.utabs{display:flex;gap:2px;background:rgba(26,20,16,.06);border-radius:8px;padding:2px}
+.utab{padding:4px 11px;border-radius:6px;font-size:.72rem;font-weight:500;color:var(--ink2);transition:all .15s;white-space:nowrap}
+.utab.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 4px rgba(26,20,16,.1)}
+.ynum{font-size:.78rem;font-weight:500;color:var(--ink2)}
+.size-wrap{display:flex;align-items:center;gap:6px}
+.size-wrap label{font-size:.62rem;color:var(--ink3);white-space:nowrap}
+#sizeSlider{width:70px;accent-color:var(--ink2)}
+@media(max-width:600px){.size-wrap{display:none}}
+.sync{display:flex;align-items:center;gap:5px;font-size:.65rem;color:var(--ink3)}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--good);flex-shrink:0}
+.sdot.busy{background:var(--normal);animation:pulse .9s infinite}
+.sdot.err{background:var(--awful)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* LEGEND */
+.legend{flex-shrink:0;padding:0 20px;height:30px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:14px;overflow:hidden}
+.leg{display:flex;align-items:center;gap:5px;font-size:.65rem;color:var(--ink2);white-space:nowrap}
+.ldot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.leg-r{font-size:.75rem;color:var(--ink3);font-style:italic;font-family:'Cormorant Garamond',serif;white-space:nowrap;margin-left:8px}
+
+/* GRID */
+.grid-area{flex:1;overflow:auto;padding:16px 20px 28px;display:flex;justify-content:center}
+.ytable{border-collapse:separate;border-spacing:3px}
+.ytable th{font-size:.58rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);padding-bottom:4px;text-align:center;width:var(--cs)}
+.ytable th.corner{width:18px}
+.ytable td.dl{font-size:.56rem;color:var(--ink3);text-align:right;padding-right:3px;width:18px;vertical-align:middle}
+
+/* CIRCLE CELLS */
+.c{width:var(--cs);min-width:var(--cs);height:var(--cs);
+  border-radius:50%;
+  background:rgba(26,20,16,.06);
+  cursor:pointer;position:relative;vertical-align:middle;
+  transition:transform .12s;overflow:hidden;
+}
+.c:hover{transform:scale(1.2);z-index:10}
+.c.na{background:transparent;pointer-events:none;cursor:default;overflow:visible}
+.c[data-m=awful]{background:var(--awful)}
+.c[data-m=bad]{background:var(--bad)}
+.c[data-m=normal]{background:var(--normal)}
+.c[data-m=good]{background:var(--good)}
+.c[data-m=super]{background:var(--super)}
+/* Split color — diagonal gradient */
+.c.split{background:none !important}
+.split-bg{position:absolute;inset:0;border-radius:inherit}
+/* Today */
+.c.today{outline:2px solid var(--ink);outline-offset:1px}
+.c.merged{border-radius:calc(var(--cs)*0.4)}
+/* Emoji */
+.cem{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:calc(var(--cs)*0.62);line-height:1;pointer-events:none;z-index:2}
+/* Note dot */
+.cpip{position:absolute;bottom:12%;right:12%;width:18%;height:18%;border-radius:50%;background:rgba(255,255,255,.75);z-index:2}
+.c[data-m=""]:not(.na) .cpip{background:rgba(26,20,16,.28)}
+
+/* MERGE SELECT MODE */
+.c.merge-start{outline:2px dashed var(--ink2);outline-offset:1px;animation:blink .8s infinite}
+@keyframes blink{0%,100%{outline-color:var(--ink2)}50%{outline-color:transparent}}
+.c.merge-candidate{outline:1.5px dashed var(--ink3);outline-offset:1px}
+
+/* OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(26,20,16,.3);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:all}
+.sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:480px;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,0,.15,1);position:relative;overflow:hidden}
+.overlay.open .sheet{transform:translateY(0)}
+.drag{width:36px;height:3px;border-radius:2px;background:rgba(26,20,16,.1);margin:11px auto 0}
+.sh-head{padding:14px 20px 8px;display:flex;align-items:flex-start;justify-content:space-between}
+.sh-ttl{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;line-height:1.1}
+.sh-ttl em{font-style:italic}
+.sh-sub{font-size:.7rem;color:var(--ink2);margin-top:3px}
+.sh-x{width:27px;height:27px;border-radius:50%;background:rgba(26,20,16,.06);color:var(--ink2);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;margin-top:2px;transition:background .12s}
+.sh-x:hover{background:rgba(26,20,16,.12)}
+.sh-body{padding:4px 20px 28px;max-height:78vh;overflow-y:auto}
+.slbl{font-size:.6rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
+
+/* MOOD PICKERS */
+.mpick{display:flex;gap:10px;margin-bottom:16px}
+.mwrap{display:flex;flex-direction:column;align-items:center;gap:7px;flex:1;cursor:pointer}
+.mbtn{width:100%;aspect-ratio:1/1;max-width:46px;border-radius:50%;opacity:.28;transition:opacity .15s,transform .15s;pointer-events:none}
+.mwrap:hover .mbtn{opacity:.55}
+.mwrap.on .mbtn{opacity:1;transform:scale(1.12)}
+.mbtn[data-m=awful]{background:var(--awful)}
+.mbtn[data-m=bad]{background:var(--bad)}
+.mbtn[data-m=normal]{background:var(--normal)}
+.mbtn[data-m=good]{background:var(--good)}
+.mbtn[data-m=super]{background:var(--super)}
+.mlbl{font-size:.58rem;color:var(--ink2);white-space:nowrap;text-align:center}
+
+/* SPLIT COLOR SECTION */
+.split-toggle{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 12px;border-radius:10px;
+  background:rgba(26,20,16,.04);border:1px dashed var(--line2);
+  font-size:.75rem;color:var(--ink2);cursor:pointer;
+  transition:background .15s;margin-bottom:14px;
+}
+.split-toggle:hover{background:rgba(26,20,16,.08)}
+.split-toggle.active{background:rgba(26,20,16,.06);border-style:solid;color:var(--ink)}
+.split-section{display:none;margin-bottom:14px}
+.split-section.open{display:block}
+.split-preview{
+  width:32px;height:32px;border-radius:50%;
+  border:1.5px solid var(--line2);flex-shrink:0;overflow:hidden;
+}
+
+/* MERGE SECTION */
+.merge-section{border-top:1px solid var(--line);padding-top:14px;margin-top:6px;margin-bottom:14px}
+.merge-row{display:flex;align-items:center;gap:8px}
+.merge-row label{font-size:.73rem;color:var(--ink2);flex:1}
+.merge-input{width:52px;border:1px solid var(--line2);border-radius:7px;padding:5px 8px;font-size:.85rem;text-align:center;background:var(--bg)}
+.merge-input:focus{outline:none;border-color:var(--ink2)}
+.btn-merge{background:var(--ink);color:#fff;border-radius:8px;padding:6px 12px;font-size:.75rem;font-weight:500;transition:opacity .15s}
+.btn-merge:hover{opacity:.85}
+.btn-unmerge{background:rgba(26,20,16,.07);color:var(--ink2);border-radius:8px;padding:6px 12px;font-size:.75rem;transition:background .15s}
+.btn-unmerge:hover{background:rgba(26,20,16,.13)}
+
+/* FIELDS */
+.note{width:100%;border:1px solid var(--line2);border-radius:10px;padding:9px 11px;font-size:.8rem;line-height:1.65;background:var(--bg);resize:none;height:80px;margin-bottom:14px;transition:border-color .15s}
+.note:focus{outline:none;border-color:var(--ink2)}
+.em-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.em-row label{font-size:.73rem;color:var(--ink2);flex:1}
+.em-clear{font-size:.7rem;color:var(--ink3);cursor:pointer;padding:2px 6px;border-radius:5px;transition:background .12s}
+.em-clear:hover{background:rgba(26,20,16,.08)}
+.em-in{width:52px;border:1px solid var(--line2);border-radius:8px;padding:5px 8px;font-size:1.3rem;text-align:center;background:var(--bg);cursor:pointer}
+
+/* PHOTO */
+.pzone{border:1.5px dashed var(--line2);border-radius:10px;padding:12px;text-align:center;margin-bottom:14px;cursor:pointer;position:relative;overflow:hidden;transition:border-color .15s}
+.pzone:hover{border-color:var(--ink2)}
+.pzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.pz-t{font-size:.76rem;font-weight:500;color:var(--ink)}
+.pz-s{font-size:.68rem;color:var(--ink2);margin-top:2px}
+.pz-load{font-size:.68rem;color:var(--ink2);margin-top:6px;display:none}
+.pz-img{width:100%;max-height:90px;object-fit:cover;border-radius:7px;margin-top:7px;display:none}
+.pz-link{font-size:.68rem;color:var(--super);margin-top:5px;display:none;text-decoration:none}
+
+/* SAVE */
+.srow{display:flex;gap:8px}
+.btn-s{flex:1;background:var(--ink);color:#fff;border-radius:10px;padding:10px;font-size:.8rem;font-weight:500;transition:opacity .15s}
+.btn-s:hover{opacity:.85}
+.btn-s:disabled{opacity:.3;cursor:default}
+.btn-c{background:rgba(26,20,16,.06);color:var(--ink2);border-radius:10px;padding:10px 13px;font-size:.8rem;transition:background .12s}
+.btn-c:hover{background:rgba(26,20,16,.12)}
+
+/* EMOJI PANEL */
+.emoji-panel{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--line2);border-radius:16px 16px 0 0;padding:12px 16px 28px;z-index:400;transform:translateY(100%);transition:transform .25s cubic-bezier(.32,0,.15,1);max-height:55vh;overflow-y:auto}
+.emoji-panel.open{transform:translateY(0)}
+.epanel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.epanel-title{font-size:.7rem;font-weight:500;color:var(--ink2);letter-spacing:.05em;text-transform:uppercase}
+.epanel-close{font-size:.85rem;color:var(--ink2);padding:4px 8px;border-radius:6px}
+.epanel-section{font-size:.6rem;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;margin:10px 0 6px}
+.epanel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:4px;margin-bottom:4px}
+.epick-btn{font-size:1.45rem;padding:5px;border-radius:8px;cursor:pointer;text-align:center;background:none;border:none;line-height:1;transition:background .1s}
+.epick-btn:hover{background:rgba(26,20,16,.08)}
+.epanel-overlay{position:fixed;inset:0;z-index:399;display:none}
+.epanel-overlay.open{display:block}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--ink);color:#fff;padding:7px 14px;border-radius:7px;font-size:.72rem;opacity:0;pointer-events:none;transition:all .2s;z-index:600;white-space:nowrap;max-width:90vw}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.bad{background:var(--awful)}
+
+/* ── VIEW CARD ── */
+.card-view{display:none;padding:0}
+.card-view.active{display:block}
+.edit-form{display:block}
+.edit-form.hidden{display:none}
+
+/* Photo hero */
+.card-photo{
+  width:100%;height:200px;object-fit:cover;
+  display:block;border-radius:0;
+  background:rgba(26,20,16,.04);
+}
+.card-photo-placeholder{
+  width:100%;height:80px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.72rem;color:var(--ink3);font-style:italic;
+}
+.card-photo-loading{
+  width:100%;height:80px;
+  display:flex;align-items:center;justify-content:center;
+  gap:8px;font-size:.72rem;color:var(--ink3);
+}
+
+/* Mood bar in card */
+.card-mood-bar{
+  height:6px;width:100%;
+}
+.card-mood-bar.split{background:linear-gradient(90deg, var(--c1) 50%, var(--c2) 50%)}
+
+/* Card body */
+.card-body{padding:16px 20px 20px}
+.card-date-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.card-date{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;line-height:1}
+.card-date em{font-style:italic}
+.card-sub{font-size:.68rem;color:var(--ink3);margin-top:3px}
+.card-emoji{font-size:1.8rem;line-height:1;margin-left:8px}
+
+/* Mood chips */
+.card-moods{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.card-mood-chip{
+  display:flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:20px;
+  font-size:.7rem;font-weight:500;color:#fff;
+}
+.card-mood-chip.normal{color:rgba(26,20,16,.8)}
+
+/* Note text */
+.card-note{
+  font-size:.85rem;line-height:1.7;color:var(--ink);
+  white-space:pre-wrap;word-break:break-word;
+  min-height:20px;
+}
+.card-note-empty{font-size:.8rem;color:var(--ink3);font-style:italic}
+
+/* Card actions */
+.card-actions{
+  display:flex;gap:8px;margin-top:18px;padding-top:14px;
+  border-top:1px solid var(--line);
+}
+.btn-edit{
+  flex:1;background:var(--ink);color:#fff;border-radius:10px;
+  padding:10px;font-size:.8rem;font-weight:500;transition:opacity .15s;
+}
+.btn-edit:hover{opacity:.85}
+.btn-photo-open{
+  background:rgba(26,20,16,.06);color:var(--ink2);
+  border-radius:10px;padding:10px 14px;font-size:.8rem;
+  transition:background .15s;text-decoration:none;
+  display:flex;align-items:center;gap:5px;
+}
+.btn-photo-open:hover{background:rgba(26,20,16,.12)}
+
+/* PIN SCREEN */
+#pinScreen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:1000}
+#pinScreen.hidden{display:none}
+.pin-title{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;letter-spacing:-.01em}
+.pin-title em{font-style:italic}
+.pin-sub{font-size:.78rem;color:var(--ink2)}
+.pin-dots{display:flex;gap:12px;margin:8px 0}
+.pin-dot{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--line2);transition:background .15s}
+.pin-dot.filled{background:var(--ink);border-color:var(--ink)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,64px);gap:8px}
+.pin-btn{width:64px;height:64px;border-radius:50%;background:var(--surface);border:1px solid var(--line2);font-size:1.2rem;font-weight:500;color:var(--ink);transition:background .12s}
+.pin-btn:hover{background:rgba(26,20,16,.08)}
+.pin-btn:active{background:rgba(26,20,16,.15)}
+.pin-error{font-size:.75rem;color:var(--awful);min-height:16px}
+</style>
+</head>
+<body>
+
+
+<!-- PIN SCREEN -->
+<div id="pinScreen">
+  <div class="pin-title">Год в <em>цветах</em></div>
+  <div class="pin-sub">Введи пин-код для входа</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-error" id="pinError"></div>
+  <div class="pin-pad">
+    <button class="pin-btn" onclick="pinPress('1')">1</button>
+    <button class="pin-btn" onclick="pinPress('2')">2</button>
+    <button class="pin-btn" onclick="pinPress('3')">3</button>
+    <button class="pin-btn" onclick="pinPress('4')">4</button>
+    <button class="pin-btn" onclick="pinPress('5')">5</button>
+    <button class="pin-btn" onclick="pinPress('6')">6</button>
+    <button class="pin-btn" onclick="pinPress('7')">7</button>
+    <button class="pin-btn" onclick="pinPress('8')">8</button>
+    <button class="pin-btn" onclick="pinPress('9')">9</button>
+    <button class="pin-btn" style="font-size:.85rem;color:var(--ink2)" onclick="pinClear()">⌫</button>
+    <button class="pin-btn" onclick="pinPress('0')">0</button>
+    <button class="pin-btn" style="font-size:.85rem;color:var(--ink2)" onclick="pinSubmit()">✓</button>
+  </div>
+</div>
+
+<div id="loading">
+  <div class="load-title">Год в <em>цветах</em></div>
+  <div class="spin"></div>
+  <div class="ltxt" id="ltxt">загрузка данных…</div>
+</div>
+
+<header>
+  <div class="hlogo">Год в <em>цветах</em></div>
+  <div class="utabs">
+    <button class="utab on" data-u="snaapsy" onclick="switchUser('snaapsy')">🌙 Snaapsy</button>
+    <button class="utab" data-u="winnieshe4k0" onclick="switchUser('winnieshe4k0')">☀️ Winnie</button>
+  </div>
+  <span class="ynum" id="ynum"></span>
+  <div class="size-wrap">
+    <label>размер</label>
+    <input type="range" id="sizeSlider" min="14" max="48" value="28" step="1" oninput="resizeCells(this.value)">
+  </div>
+  <div class="sync"><div class="sdot" id="sd"></div><span id="st">загрузка…</span></div>
+</header>
+
+<div class="legend">
+  <div class="leg"><div class="ldot" style="background:var(--awful)"></div>Ужасный</div>
+  <div class="leg"><div class="ldot" style="background:var(--bad)"></div>Плохой</div>
+  <div class="leg"><div class="ldot" style="background:var(--normal)"></div>Обычный</div>
+  <div class="leg"><div class="ldot" style="background:var(--good)"></div>Хороший</div>
+  <div class="leg"><div class="ldot" style="background:var(--super)"></div>Супер</div>
+  <span class="leg-r">✦ особое событие</span>
+</div>
+
+<div class="grid-area">
+  <table class="ytable" id="grid"></table>
+</div>
+
+<!-- SHEET (view + edit) -->
+<div class="overlay" id="ov" onclick="bgClose(event)">
+  <div class="sheet">
+    <div class="drag"></div>
+
+    <!-- ── VIEW CARD ── -->
+    <div class="card-view" id="cardView">
+      <!-- Фото / загрузка -->
+      <div id="cardPhotoWrap"></div>
+      <!-- Цветная полоска настроения -->
+      <div class="card-mood-bar" id="cardMoodBar"></div>
+      <div class="card-body">
+        <div class="card-date-row">
+          <div>
+            <div class="card-date" id="cardDate">—</div>
+            <div class="card-sub" id="cardSub">—</div>
+          </div>
+          <div class="card-emoji" id="cardEmoji"></div>
+        </div>
+        <div class="card-moods" id="cardMoods"></div>
+        <div id="cardNoteWrap"></div>
+        <div class="card-actions">
+          <button class="btn-edit" onclick="switchToEdit()">✏️ Редактировать</button>
+          <a class="btn-photo-open" id="cardPhotoLink" style="display:none" target="_blank">📎 Фото</a>
+        </div>
+      </div>
+      <button class="sh-x" style="position:absolute;top:20px;right:20px" onclick="closeSheet()">✕</button>
+    </div>
+
+    <!-- ── EDIT FORM ── -->
+    <div class="edit-form hidden" id="editForm">
+    <div class="sh-head">
+      <div>
+        <div class="sh-ttl" id="sttl">—</div>
+        <div class="sh-sub" id="ssub">—</div>
+      </div>
+      <button class="sh-x" onclick="closeSheet()">✕</button>
+    </div>
+    <div class="sh-body">
+
+      <!-- MOOD 1 -->
+      <div class="slbl" style="margin-bottom:14px">Настроение</div>
+      <div class="mpick" id="mpick1">
+        <div class="mwrap" onclick="pickMood(1,'awful')"><div class="mbtn" data-m="awful"></div><span class="mlbl">Ужасный</span></div>
+        <div class="mwrap" onclick="pickMood(1,'bad')"><div class="mbtn" data-m="bad"></div><span class="mlbl">Плохой</span></div>
+        <div class="mwrap" onclick="pickMood(1,'normal')"><div class="mbtn" data-m="normal"></div><span class="mlbl">Обычный</span></div>
+        <div class="mwrap" onclick="pickMood(1,'good')"><div class="mbtn" data-m="good"></div><span class="mlbl">Хороший</span></div>
+        <div class="mwrap" onclick="pickMood(1,'super')"><div class="mbtn" data-m="super"></div><span class="mlbl">Супер</span></div>
+      </div>
+
+      <!-- SPLIT TOGGLE -->
+      <div class="split-toggle" id="splitToggle" onclick="toggleSplit()">
+        <div class="split-preview" id="splitPreview"></div>
+        <span id="splitToggleText">+ Добавить второй оттенок</span>
+      </div>
+
+      <!-- MOOD 2 -->
+      <div class="split-section" id="splitSection">
+        <div class="slbl" style="margin-bottom:10px">Второй оттенок</div>
+        <div class="mpick" id="mpick2">
+          <div class="mwrap" onclick="pickMood(2,'awful')"><div class="mbtn" data-m="awful"></div><span class="mlbl">Ужасный</span></div>
+          <div class="mwrap" onclick="pickMood(2,'bad')"><div class="mbtn" data-m="bad"></div><span class="mlbl">Плохой</span></div>
+          <div class="mwrap" onclick="pickMood(2,'normal')"><div class="mbtn" data-m="normal"></div><span class="mlbl">Обычный</span></div>
+          <div class="mwrap" onclick="pickMood(2,'good')"><div class="mbtn" data-m="good"></div><span class="mlbl">Хороший</span></div>
+          <div class="mwrap" onclick="pickMood(2,'super')"><div class="mbtn" data-m="super"></div><span class="mlbl">Супер</span></div>
+        </div>
+        <button class="btn-unmerge" style="margin-bottom:4px" onclick="clearSplit()">Убрать второй оттенок</button>
+      </div>
+
+      <!-- ЗАМЕТКИ -->
+      <div class="slbl">Заметки</div>
+      <textarea class="note" id="noteIn" placeholder="Что было сегодня?"></textarea>
+
+      <!-- ЭМОДЗИ -->
+      <div class="em-row">
+        <label>Особое событие ✦</label>
+        <span class="em-clear" onclick="clearEmoji()">очистить</span>
+        <div class="em-in" id="emIn" onclick="openEmojiPanel()">✦</div>
+      </div>
+
+      <!-- ОБЪЕДИНЕНИЕ -->
+      <div class="merge-section" id="mergeSection">
+        <div class="slbl" style="margin-bottom:10px">Объединить ячейки</div>
+        <div class="merge-row">
+          <label>Объединить с днём по:</label>
+          <input type="number" class="merge-input" id="mergeEnd" min="1" max="31">
+          <button class="btn-merge" onclick="doMerge()">Объединить</button>
+        </div>
+        <div style="margin-top:8px">
+          <button class="btn-unmerge" id="btnUnmerge" onclick="doUnmerge()" style="display:none">Разъединить</button>
+        </div>
+      </div>
+
+      <!-- ФОТО -->
+      <div class="slbl">Фото → Google Drive</div>
+      <div class="pzone">
+        <input type="file" accept="image/*" id="pInput" onchange="onPhoto(event)">
+        <div class="pz-t">Прикрепить фото</div>
+        <div class="pz-s">нажми или перетащи сюда</div>
+        <div class="pz-load" id="pLoader">Загрузка на Drive…</div>
+        <img class="pz-img" id="pImg">
+        <a class="pz-link" id="pLink" target="_blank">📎 Открыть на Drive →</a>
+      </div>
+
+      <div class="srow">
+        <button class="btn-s" id="btnSave" onclick="saveDay()">Сохранить</button>
+        <button class="btn-c" onclick="clearForm()">Очистить</button>
+      </div>
+    </div>
+    </div><!-- /edit-form -->
+  </div>
+</div>
+
+<!-- EMOJI PANEL -->
+<div class="epanel-overlay" id="epanelOv" onclick="closeEmojiPanel()"></div>
+<div class="emoji-panel" id="emojiPanel">
+  <div class="epanel-head">
+    <span class="epanel-title">Выбери эмодзи</span>
+    <button class="epanel-close" onclick="closeEmojiPanel()">✕</button>
+  </div>
+  <div id="epanelContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+// ═══ PIN ═══
+var PIN_KEY = 'moodPin';
+var S_PIN = '';
+
+function pinPress(d){
+  if(S_PIN.length>=4)return;
+  S_PIN+=d;
+  updatePinDots();
+  if(S_PIN.length===4) setTimeout(pinSubmit,120);
+}
+function pinClear(){
+  S_PIN=S_PIN.slice(0,-1);
+  updatePinDots();
+  document.getElementById('pinError').textContent='';
+}
+function updatePinDots(){
+  for(var i=0;i<4;i++){
+    document.getElementById('pd'+i).classList.toggle('filled',i<S_PIN.length);
+  }
+}
+function pinSubmit(){
+  if(S_PIN.length===0)return;
+  // Проверяем пин через saveDay с тестовыми данными — если вернёт Unauthorized, пин неверный
+  // Но чтобы не писать в таблицу, проверяем через getData (read-only) и храним пин локально
+  // Реальная проверка произойдёт при первой записи
+  localStorage.setItem(PIN_KEY, S_PIN);
+  document.getElementById('pinScreen').classList.add('hidden');
+  document.getElementById('loading').classList.remove('out');
+  document.getElementById('loading').style.display='flex';
+  loadYear();
+}
+
+// Проверяем сохранённый пин при старте
+(function(){
+  var saved=localStorage.getItem(PIN_KEY);
+  if(saved){
+    S_PIN=saved;
+    document.getElementById('pinScreen').classList.add('hidden');
+  }
+})();
+
+const API = 'https://script.google.com/macros/s/AKfycbyBcQbGHEpyVImKu7qTSeIzbejHN9OWI81Bclyp0OfiRo6Ln22NrWF7cJBsoseTWe2h/exec';
+
+const MOOD_COLORS = {awful:'#ff0000',bad:'#ff9900',normal:'#e6e600',good:'#00cc00',super:'#0000ff'};
+const MS  = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+const MG  = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const DW  = ['вс','пн','вт','ср','чт','пт','сб'];
+const DIM = [31,28,31,30,31,30,31,31,30,31,30,31];
+const NOW   = new Date();
+const TODAY = {y:NOW.getFullYear(), m:NOW.getMonth(), d:NOW.getDate()};
+
+const EMOJI_GROUPS = [
+  {name:'Лица', items:['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','🥰','😘','😗','😙','😚','🙂','🤗','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','☹️','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧','😇','🥳','🥸','🤠','🤡','🤥','🤫','🤭','🧐','😈','👿','👹','👺','💀','☠️','👻','👽','🤖','💩','😺','😸','😹','😻','😼','😽','🙀','😿','😾']},
+  {name:'Жесты и тело', items:['👋','🤚','🖐','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👍','👎','✊','👊','🤛','🤜','👏','🙌','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦵','🦶','👂','🦻','👃','👀','👁','👅','👄','🫀','🫁','🧠','🦷','🦴']},
+  {name:'Сердца', items:['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','❤️‍🔥','❤️‍🩹']},
+  {name:'Праздник', items:['🎉','🎊','🎈','🎁','🎀','🎗','🎟','🎫','🎖','🏆','🥇','🥈','🥉','🏅','🎪','🎭','🎨','🎬','🎤','🎧','🎼','🎵','🎶','🎹','🥁','🪘','🎷','🎺','🎸','🪕','🎻','🎲','♟','🎯','🎳','🎮','🎰','🧩','🪄','🎠','🎡','🎢','🎪']},
+  {name:'Природа', items:['🌸','🌺','🌻','🌹','🌷','🌼','💐','🍀','🌿','🍃','🍂','🍁','🍄','🌾','💧','🌊','🌈','⭐','🌟','💫','✨','🌙','☀️','🌤','⛅','🌧','⛈','🌩','❄️','⛄','🌬','🌀','🌂','🌍','🌏','🌎','🏔','🌋','🗻','🏕','🌅','🌄','🌠','🌌','🌁']},
+  {name:'Еда', items:['🍎','🍊','🍋','🍇','🍓','🫐','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🥑','🍆','🌽','🌶','🍞','🥐','🍳','🥞','🧇','🥓','🍗','🍖','🌭','🍔','🍟','🍕','🌮','🌯','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🍤','🍙','🍚','🍘','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','☕','🍵','🧃','🥤','🧋','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧉','🍾']},
+  {name:'Животные', items:['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷','🦂','🐢','🐍','🦎','🦕','🦖','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🦣','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🦬','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐈','🐓','🦃','🦚','🦜','🦢','🦩','🕊','🐇','🦝','🦨','🦡','🦫','🦦','🦥','🐁','🐀','🐿','🦔','🦧']},
+  {name:'Транспорт', items:['🚗','🚕','🚙','🚌','🚎','🏎','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🏍','🛵','🚲','🛴','🛹','✈️','🛩','🚀','🛸','🚁','⛵','🚤','🛳','🚢','⚓','🚂','🚃','🚄','🚅','🚆','🚇','🚈','🚉','🚊','🚝','🚞','🚋','🚌','🚍','🚎']},
+  {name:'Разное', items:['💪','🧠','💡','🔦','💰','💵','💳','🪙','📱','💻','🖥','📷','📸','📹','🎥','📞','☎️','📺','📻','🧭','⏰','⌛','📡','🔋','🔌','🔭','🔬','🩺','💊','💉','🧬','🪝','🧰','🚪','🛏','🛋','🧴','🧹','🧺','🧼','🛒','📚','📖','📝','✏️','🖊','🖋','📌','📍','📎','🔑','🗝','🔐','🔒','🔓','❤️','⭐','🌟','💥','🎯','🏆','🥇','💯','✅','❌','⚡','🔥','💧','🌊','🎵','🎶','🎸','🎹','🥁','🎻','🎺','🎷','🪕','🎤','🎧','🎬','📸','🏖️','🏝','🏕','⛺','🌅','🌄','🌠','🎑','🎆','🎇']}
+];
+
+const S = {
+  user:'snaapsy', year:TODAY.y,
+  data:{snaapsy:{}, winnieshe4k0:{}, merged:[]},
+  edit:null, mood1:null, mood2:null, photoUrl:null, emoji:'',
+  splitOpen:false,
+};
+
+// ═══ INIT ═══
+document.getElementById('ynum').textContent = S.year;
+buildEmojiPanel();
+try{const c=localStorage.getItem('gvc');if(c){S.data=JSON.parse(c);renderGrid();}}catch(e){}
+const sv=localStorage.getItem('cellSize');
+if(sv){document.getElementById('sizeSlider').value=sv;document.documentElement.style.setProperty('--cs',sv+'px');}
+loadYear();
+
+// ═══ EMOJI ═══
+function buildEmojiPanel(){
+  const el=document.getElementById('epanelContent');
+  let html='';
+  EMOJI_GROUPS.forEach(function(g){
+    html+='<div class="epanel-section">'+g.name+'</div><div class="epanel-grid">';
+    g.items.forEach(function(em){html+='<button class="epick-btn" onclick="pickEmoji(\''+em+'\')">'+em+'</button>';});
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+function openEmojiPanel(){document.getElementById('emojiPanel').classList.add('open');document.getElementById('epanelOv').classList.add('open');}
+function closeEmojiPanel(){document.getElementById('emojiPanel').classList.remove('open');document.getElementById('epanelOv').classList.remove('open');}
+function pickEmoji(em){S.emoji=em;document.getElementById('emIn').textContent=em;closeEmojiPanel();}
+function clearEmoji(){S.emoji='';document.getElementById('emIn').textContent='✦';}
+
+// ═══ SIZE ═══
+function resizeCells(val){
+  document.documentElement.style.setProperty('--cs',val+'px');
+  localStorage.setItem('cellSize',val);
+  // Обновляем высоту всех ячеек в таблице (т.к. CSS-переменная не работает через attr height в td)
+  document.querySelectorAll('#grid td.c:not(.na)').forEach(function(td){
+    var rs=td.rowSpan||1;
+    var h=rs>1?(val*rs+3*(rs-1)):val;
+    td.style.height=h+'px';
+    td.style.minHeight=h+'px';
+    td.style.width=val+'px';
+    td.style.minWidth=val+'px';
+  });
+}
+
+// ═══ JSONP ═══
+function jsonp(params){
+  return new Promise(function(resolve,reject){
+    const cb='_cb'+Date.now();
+    const timer=setTimeout(function(){delete window[cb];reject(new Error('Timeout'));},20000);
+    window[cb]=function(data){clearTimeout(timer);delete window[cb];if(data.error)reject(new Error(data.error));else resolve(data);};
+    params.callback=cb;
+    const tag=document.createElement('script');
+    tag.src=API+'?'+new URLSearchParams(params).toString();
+    tag.onerror=function(){clearTimeout(timer);delete window[cb];reject(new Error('Script load error'));};
+    document.head.appendChild(tag);
+    setTimeout(function(){try{document.head.removeChild(tag);}catch(e){}},25000);
+  });
+}
+
+// ═══ LOAD ═══
+async function loadYear(){
+  setSyncing(true);
+  try{
+    const d=await jsonp({action:'getData',year:S.year});
+    S.data=d;
+    localStorage.setItem('gvc',JSON.stringify(d));
+    renderGrid();setSyncing(false);
+  }catch(e){setSyncing(false,true);toast('Ошибка: '+e.message,true);}
+  finally{fadeOut();}
+}
+
+// ═══ GRID ═══
+function getMoodColor(mood){return MOOD_COLORS[mood]||null;}
+
+function renderGrid(){
+  const leap=(S.year%4===0&&S.year%100!==0)||S.year%400===0;
+  const dim=[...DIM];if(leap)dim[1]=29;
+
+  // rowspan map
+  const rowspan={};
+  for(let m=0;m<12;m++){rowspan[m]={};for(let d=1;d<=31;d++)rowspan[m][d]=1;}
+  (S.data.merged||[]).filter(function(mg){return mg.user===S.user;}).forEach(function(mg){
+    rowspan[mg.month][mg.day]=mg.span;
+    for(let i=1;i<mg.span;i++)rowspan[mg.month][mg.day+i]=0;
+  });
+
+  const cs=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cs').trim())||28;
+
+  let html='<thead><tr><th class="corner"></th>';
+  MS.forEach(function(m){html+='<th>'+m+'</th>';});
+  html+='</tr></thead><tbody>';
+
+  for(let d=1;d<=31;d++){
+    html+='<tr><td class="dl">'+d+'</td>';
+    for(let m=0;m<12;m++){
+      if(d>dim[m]){html+='<td class="c na"></td>';continue;}
+      const rs=rowspan[m][d];
+      if(rs===0) continue;
+
+      const e=S.data[S.user]&&S.data[S.user][m+'-'+d];
+      const md=e&&e.mood?e.mood:'';
+      const md2=e&&e.split2?e.split2:'';
+      const em=e&&e.emoji?e.emoji:'';
+      const nt=!!(e&&e.note);
+      const isToday=S.year===TODAY.y&&m===TODAY.m&&d===TODAY.d;
+      const isMerged=rs>1;
+      const h=isMerged?(cs*rs+3*(rs-1))+'px':cs+'px';
+      const isSplit=!!(md&&md2);
+
+      let cls='c'+(isToday?' today':'')+(isMerged?' merged':'')+(isSplit?' split':'');
+      let style='height:'+h+';min-height:'+h+(isMerged?';border-radius:calc(var(--cs)*0.4)':'');
+
+      // Split background
+      let inner='';
+      if(isSplit){
+        const c1=getMoodColor(md), c2=getMoodColor(md2);
+        inner='<div class="split-bg" style="background:linear-gradient(135deg,'+c1+' 50%,'+c2+' 50%)"></div>';
+      }
+
+      html+='<td class="'+cls+'"'
+        +(md&&!isSplit?' data-m="'+md+'"':'')
+        +(rs>1?' rowspan="'+rs+'"':'')
+        +' style="'+style+'"'
+        +' onclick="openCell('+m+','+d+')">'
+        +inner
+        +(em?'<span class="cem">'+em+'</span>':'')
+        +((nt||md||md2)?'<div class="cpip"></div>':'')
+        +'</td>';
+    }
+    html+='</tr>';
+  }
+  html+='</tbody>';
+  document.getElementById('grid').innerHTML=html;
+}
+
+// ═══ SPLIT COLOR ═══
+function toggleSplit(){
+  S.splitOpen=!S.splitOpen;
+  document.getElementById('splitSection').classList.toggle('open',S.splitOpen);
+  document.getElementById('splitToggle').classList.toggle('active',S.splitOpen);
+  if(!S.splitOpen){clearSplit();}
+  updateSplitPreview();
+}
+
+function clearSplit(){
+  S.mood2=null;S.splitOpen=false;
+  document.getElementById('splitSection').classList.remove('open');
+  document.getElementById('splitToggle').classList.remove('active');
+  document.querySelectorAll('#mpick2 .mwrap').forEach(function(w){w.classList.remove('on');});
+  updateSplitPreview();
+}
+
+function updateSplitPreview(){
+  const prev=document.getElementById('splitPreview');
+  const txt=document.getElementById('splitToggleText');
+  if(S.mood1&&S.mood2){
+    const c1=getMoodColor(S.mood1),c2=getMoodColor(S.mood2);
+    prev.style.background='linear-gradient(135deg,'+c1+' 50%,'+c2+' 50%)';
+    txt.textContent='Два оттенка: убрать второй';
+  } else if(S.mood2){
+    prev.style.background=getMoodColor(S.mood2)||'transparent';
+    txt.textContent='Второй оттенок выбран';
+  } else {
+    prev.style.background='transparent';
+    txt.textContent='+ Добавить второй оттенок';
+  }
+}
+
+// ═══ CELL ═══
+
+const MOOD_LABELS = {awful:'Ужасный',bad:'Плохой',normal:'Обычный',good:'Хороший',super:'Супер'};
+
+function openCell(m,d){
+  S.edit={m,d};
+  const e=(S.data[S.user]&&S.data[S.user][m+'-'+d])||{};
+  S.mood1=e.mood||null; S.mood2=e.split2||null;
+  S.photoUrl=e.photoUrl||null; S.emoji=e.emoji||'';
+  S.splitOpen=!!S.mood2;
+
+  const dt=new Date(S.year,m,d);
+  const dateStr=d+' <em>'+MG[m]+'</em>';
+  const subStr=DW[dt.getDay()]+', '+S.year+'  ·  '+(S.user==='snaapsy'?'🌙 Snaapsy':'☀️ Winnieshe4k0');
+
+  // Если у дня есть хотя бы один цвет — показываем карточку
+  if(S.mood1){
+    showCard(e, dateStr, subStr, m, d);
+  } else {
+    showEditForm(e, dateStr, subStr, m, d);
+  }
+  document.getElementById('ov').classList.add('open');
+}
+
+function driveThumb(url){
+  // Конвертируем Google Drive ссылку в прямую ссылку для <img>
+  if(!url)return null;
+  var m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if(m) return 'https://lh3.googleusercontent.com/d/'+m[1];
+  return url;
+}
+
+function showCard(e, dateStr, subStr, m, d){
+  document.getElementById('cardView').classList.add('active');
+  document.getElementById('editForm').classList.add('hidden');
+
+  // Дата
+  document.getElementById('cardDate').innerHTML=dateStr;
+  document.getElementById('cardSub').textContent=subStr.replace(/<[^>]+>/g,'');
+  document.getElementById('cardEmoji').textContent=S.emoji||'';
+
+  // Цветная полоска
+  const bar=document.getElementById('cardMoodBar');
+  if(S.mood1&&S.mood2){
+    bar.style.background='linear-gradient(90deg,'+MOOD_COLORS[S.mood1]+' 50%,'+MOOD_COLORS[S.mood2]+' 50%)';
+  } else if(S.mood1){
+    bar.style.background=MOOD_COLORS[S.mood1]||'transparent';
+  } else {
+    bar.style.background='transparent';
+  }
+
+  // Чипы настроений
+  const moodsEl=document.getElementById('cardMoods');
+  let mhtml='';
+  if(S.mood1){
+    mhtml+='<div class="card-mood-chip'+(S.mood1==='normal'?' normal':'')+'" style="background:'+MOOD_COLORS[S.mood1]+'">'+MOOD_LABELS[S.mood1]+'</div>';
+  }
+  if(S.mood2){
+    mhtml+='<div class="card-mood-chip'+(S.mood2==='normal'?' normal':'')+'" style="background:'+MOOD_COLORS[S.mood2]+'">'+MOOD_LABELS[S.mood2]+'</div>';
+  }
+  moodsEl.innerHTML=mhtml;
+
+  // Заметка — убираем строку с ссылкой на фото
+  const noteWrap=document.getElementById('cardNoteWrap');
+  const rawNote=(e.note||'');
+  const noteText=rawNote.replace(/\n?📎 .+/g,'').trim();
+  if(noteText){
+    noteWrap.innerHTML='<div class="slbl" style="margin-bottom:6px">Мнение о дне</div><p class="card-note">'+noteText.replace(/</g,'&lt;').replace(/\n/g,'<br>')+'</p>';
+  } else {
+    noteWrap.innerHTML='<p class="card-note-empty">Заметок нет</p>';
+  }
+
+  // Фото — сначала показываем загрузку, потом пробуем подцепить
+  const photoWrap=document.getElementById('cardPhotoWrap');
+  const photoLink=document.getElementById('cardPhotoLink');
+  photoLink.style.display='none';
+
+  function showPhoto(url){
+    var thumb=driveThumb(url);
+    photoWrap.innerHTML='<img class="card-photo" src="'+thumb+'" onerror="this.parentNode.innerHTML=\'<div class=card-photo-placeholder>Фото не найдено</div>\'">';
+    photoLink.href=url;
+    photoLink.style.display='flex';
+  }
+
+  if(S.photoUrl){
+    showPhoto(S.photoUrl);
+  } else {
+    photoWrap.innerHTML='<div class="card-photo-loading"><div class="spin"></div>Ищу фото…</div>';
+    jsonp({action:'confirmPhoto',user:S.user,month:m,day:d,year:S.year})
+      .then(function(res){
+        if(res.url){
+          S.photoUrl=res.url;
+          if(S.data[S.user]&&S.data[S.user][m+'-'+d]){
+            S.data[S.user][m+'-'+d].photoUrl=res.url;
+            localStorage.setItem('gvc',JSON.stringify(S.data));
+          }
+          showPhoto(res.url);
+        } else {
+          photoWrap.innerHTML='';
+        }
+      })
+      .catch(function(){photoWrap.innerHTML='';});
+  }
+}
+
+function showEditForm(e, dateStr, subStr, m, d){
+  document.getElementById('cardView').classList.remove('active');
+  document.getElementById('editForm').classList.remove('hidden');
+
+  document.getElementById('sttl').innerHTML=dateStr;
+  document.getElementById('ssub').textContent=subStr.replace(/<[^>]+>/g,'');
+  document.getElementById('noteIn').value=e.note||'';
+  document.getElementById('emIn').textContent=S.emoji||'✦';
+
+  document.getElementById('splitSection').classList.toggle('open',S.splitOpen);
+  document.getElementById('splitToggle').classList.toggle('active',S.splitOpen);
+  document.querySelectorAll('#mpick1 .mwrap').forEach(function(w){w.classList.toggle('on',w.querySelector('.mbtn').dataset.m===S.mood1);});
+  document.querySelectorAll('#mpick2 .mwrap').forEach(function(w){w.classList.toggle('on',w.querySelector('.mbtn').dataset.m===S.mood2);});
+  updateSplitPreview();
+
+  document.getElementById('pImg').style.display='none';
+  document.getElementById('pLoader').style.display='none';
+  document.getElementById('pInput').value='';
+  const lnk=document.getElementById('pLink');
+  lnk.style.display=S.photoUrl?'block':'none';
+  if(S.photoUrl)lnk.href=S.photoUrl;
+
+  const mergeEl=(S.data.merged||[]).find(function(mg){return mg.user===S.user&&mg.month===m&&mg.day===d;});
+  document.getElementById('mergeEnd').value=d+1;
+  document.getElementById('mergeEnd').min=d+1;
+  document.getElementById('btnUnmerge').style.display=mergeEl?'inline-block':'none';
+}
+
+function switchToEdit(){
+  const {m,d}=S.edit;
+  const e=(S.data[S.user]&&S.data[S.user][m+'-'+d])||{};
+  const dt=new Date(S.year,m,d);
+  showEditForm(e, d+' <em>'+MG[m]+'</em>', DW[dt.getDay()]+', '+S.year, m, d);
+}
+
+function pickMood(which,id){
+  if(which===1){
+    S.mood1=S.mood1===id?null:id;
+    document.querySelectorAll('#mpick1 .mwrap').forEach(function(w){w.classList.toggle('on',w.querySelector('.mbtn').dataset.m===S.mood1);});
+  } else {
+    S.mood2=S.mood2===id?null:id;
+    document.querySelectorAll('#mpick2 .mwrap').forEach(function(w){w.classList.toggle('on',w.querySelector('.mbtn').dataset.m===S.mood2);});
+  }
+  updateSplitPreview();
+}
+
+function clearForm(){
+  S.mood1=null;S.mood2=null;S.photoUrl=null;S.emoji='';
+  document.querySelectorAll('.mwrap').forEach(function(w){w.classList.remove('on');});
+  document.getElementById('noteIn').value='';
+  document.getElementById('emIn').textContent='✦';
+  document.getElementById('pImg').style.display='none';
+  document.getElementById('pLink').style.display='none';
+  clearSplit();
+}
+
+// ═══ MERGE ═══
+async function doMerge(){
+  const{m,d}=S.edit;
+  const endDay=parseInt(document.getElementById('mergeEnd').value);
+  if(!endDay||endDay<=d){toast('Укажи конечный день (больше '+d+')',true);return;}
+  setSyncing(true);
+  try{
+    await jsonp({action:'mergeCells',pin:localStorage.getItem(PIN_KEY)||'',user:S.user,month:m,startDay:d,endDay:endDay});
+    toast('Объединено ✓');
+    await loadYear();
+  }catch(e){setSyncing(false,true);toast('Ошибка: '+e.message,true);}
+  closeSheet();
+}
+
+async function doUnmerge(){
+  const{m,d}=S.edit;
+  setSyncing(true);
+  try{
+    await jsonp({action:'unmergeCells',pin:localStorage.getItem(PIN_KEY)||'',user:S.user,month:m,day:d});
+    toast('Разъединено ✓');
+    await loadYear();
+  }catch(e){setSyncing(false,true);toast('Ошибка: '+e.message,true);}
+  closeSheet();
+}
+
+// ═══ PHOTO ═══
+function onPhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    // Показываем превью
+    const img=document.getElementById('pImg');img.src=ev.target.result;img.style.display='block';
+    // Сжимаем через canvas до max 600px, quality 0.7
+    const image=new Image();
+    image.onload=function(){
+      const MAX=600;
+      let w=image.width,h=image.height;
+      if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+      const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(image,0,0,w,h);
+      const compressed=canvas.toDataURL('image/jpeg',0.72);
+      uploadPhoto(file.name,compressed);
+    };
+    image.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+async function uploadPhoto(filename,dataUrl){
+  if(S._uploading)return;
+  S._uploading=true;
+  document.getElementById('pLoader').style.display='block';
+  document.getElementById('pLoader').textContent='Сжимаю фото…';
+  try{
+    // Шаг 1: POST no-cors — отправляем фото (ответ не читаем, CORS не мешает)
+    document.getElementById('pLoader').textContent='Отправляю на Drive…';
+    await fetch(API,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        action:'uploadPhoto',
+        pin:localStorage.getItem(PIN_KEY)||'',
+        dataUrl:dataUrl,
+        user:S.user,month:S.edit.m,day:S.edit.d,year:S.year
+      })
+    });
+
+    // Шаг 2: ждём 4 сек пока Drive создаст файл, потом confirmPhoto через JSONP
+    document.getElementById('pLoader').textContent='Подтверждаю загрузку…';
+    await new Promise(function(r){setTimeout(r,4000);});
+    const res=await jsonp({action:'confirmPhoto',user:S.user,month:S.edit.m,day:S.edit.d,year:S.year});
+    if(res.error)throw new Error(res.error);
+    S.photoUrl=res.url;
+    const lnk=document.getElementById('pLink');lnk.href=res.url;lnk.style.display='block';
+    toast('Фото загружено ✓');
+  }catch(e){toast('Ошибка фото: '+e.message,true);}
+  finally{
+    S._uploading=false;
+    document.getElementById('pLoader').style.display='none';
+    document.getElementById('pLoader').textContent='Загрузка на Drive…';
+  }
+}
+
+// ═══ SAVE ═══
+async function saveDay(){
+  const{m,d}=S.edit;
+  const note=document.getElementById('noteIn').value.trim();
+  const emoji=S.emoji;
+  const btn=document.getElementById('btnSave');
+  btn.disabled=true;btn.textContent='Сохраняю…';
+  const key=m+'-'+d;
+  if(S.mood1||note||emoji||S.photoUrl||S.mood2){
+    if(!S.data[S.user])S.data[S.user]={};
+    S.data[S.user][key]={mood:S.mood1,note,emoji,split2:S.mood2,photoUrl:S.photoUrl||''};
+  }else{if(S.data[S.user])delete S.data[S.user][key];}
+  localStorage.setItem('gvc',JSON.stringify(S.data));
+  renderGrid();
+  setSyncing(true);
+  try{
+    await jsonp({action:'saveDay',pin:localStorage.getItem(PIN_KEY)||'',user:S.user,month:m,day:d,
+      mood:S.mood1||'',note:encodeURIComponent(note),
+      emoji:encodeURIComponent(emoji),split2:S.mood2||''});
+    if(res&&res.error==='Unauthorized'){localStorage.removeItem(PIN_KEY);location.reload();return;}
+    setSyncing(false);toast('Сохранено ✓');
+  }catch(e){setSyncing(false,true);toast('Ошибка: '+e.message,true);}
+  btn.disabled=false;btn.textContent='Сохранить';
+  closeSheet();
+  // После сохранения обновляем грид
+  renderGrid();
+}
+
+// ═══ NAV ═══
+function switchUser(u){
+  S.user=u;
+  document.querySelectorAll('.utab').forEach(function(b){b.classList.toggle('on',b.dataset.u===u);});
+  renderGrid();
+}
+
+// ═══ UI ═══
+function closeSheet(){
+  document.getElementById('ov').classList.remove('open');
+  closeEmojiPanel();
+  // Сбрасываем режим
+  setTimeout(function(){
+    document.getElementById('cardView').classList.remove('active');
+    document.getElementById('editForm').classList.remove('hidden');
+  },300);
+}
+function bgClose(e){if(e.target.id==='ov')closeSheet();}
+function fadeOut(){const el=document.getElementById('loading');el.classList.add('out');setTimeout(function(){el.style.display='none';},450);}
+function setSyncing(on,err){err=err||false;document.getElementById('sd').className='sdot'+(on?' busy':err?' err':'');document.getElementById('st').textContent=on?'синхронизация…':err?'ошибка':'синхронизировано';}
+let _tt;
+function toast(msg,bad){bad=bad||false;const t=document.getElementById('toast');t.textContent=msg;t.className='toast on'+(bad?' bad':'');clearTimeout(_tt);_tt=setTimeout(function(){t.className='toast';},3500);}
+</script>
+</body>
+</html>
