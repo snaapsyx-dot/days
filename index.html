@@ -313,6 +313,15 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 [data-theme="dark"] .pin-btn{background:rgba(232,241,248,.08);color:var(--ink);border-color:var(--line2)}
 [data-theme="dark"] .pin-btn:hover{background:rgba(232,241,248,.15)}
 [data-theme="dark"] .em-in{border-color:var(--line2)}
+
+[data-theme="dark"] .c:not([data-m]):not(.na){background:rgba(232,241,248,.1);border:1px solid rgba(232,241,248,.08)}
+[data-theme="dark"] .c:not([data-m]):not(.na):hover{background:rgba(232,241,248,.16)}
+.btn-photo-del{
+  background:rgba(255,50,50,.1);color:#ff4444;
+  border-radius:10px;padding:10px 12px;font-size:.85rem;
+  transition:background .15s;border:1px solid rgba(255,50,50,.2);
+}
+.btn-photo-del:hover{background:rgba(255,50,50,.2)}
 </style>
 </head>
 <body>
@@ -403,6 +412,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
         <div class="card-actions">
           <button class="btn-edit" onclick="switchToEdit()">✏️ Редактировать</button>
           <a class="btn-photo-open" id="cardPhotoLink" style="display:none" target="_blank">📎 Фото</a>
+          <button class="btn-photo-del" id="cardPhotoDel" style="display:none" onclick="deletePhoto()">🗑</button>
         </div>
       </div>
       <button class="sh-x" style="position:absolute;top:20px;right:20px" onclick="closeSheet()">✕</button>
@@ -566,7 +576,7 @@ function pinSubmit(){
   }
 })();
 
-const API = 'https://script.google.com/macros/s/AKfycbx8pPXs3FTUATZt3iAMhXjOJCuMwd7SZwCKD5mplPQPj7LUXXwzFKdX4PlhZ4ZB3Pyi/exec';
+const API = 'https://script.google.com/macros/s/AKfycbyTekdQFOIxj1NxucJSesmH5d_P6_yDrVCySQr3O_VXKTp647UFzv5Bk5Cz5wyt_69n/exec';
 
 const MOOD_COLORS = {awful:'#ff0000',bad:'#ff9900',normal:'#e6e600',good:'#00cc00',super:'#0000ff'};
 const MS  = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
@@ -815,6 +825,38 @@ function driveThumb(url){
   return url;
 }
 
+async function deletePhoto(){
+  if(!S.edit||!S.photoUrl){return;}
+  if(!confirm('Удалить фото с Google Drive?'))return;
+  const{m,d}=S.edit;
+  setSyncing(true);
+  try{
+    const res=await jsonp({
+      action:'deletePhoto',
+      pin:localStorage.getItem(PIN_KEY)||'',
+      user:S.user,month:m,day:d,year:S.year,
+      url:encodeURIComponent(S.photoUrl)
+    });
+    if(res&&res.error)throw new Error(res.error);
+    // Убираем из локального кеша
+    S.photoUrl=null;
+    if(S.data[S.user]&&S.data[S.user][m+'-'+d]){
+      S.data[S.user][m+'-'+d].photoUrl='';
+    }
+    localStorage.setItem('gvc',JSON.stringify(S.data));
+    // Обновляем карточку
+    document.getElementById('cardPhotoWrap').innerHTML='';
+    document.getElementById('cardPhotoLink').style.display='none';
+    document.getElementById('cardPhotoDel').style.display='none';
+    setSyncing(false);
+    toast('Фото удалено ✓');
+    renderGrid();
+  }catch(e){
+    setSyncing(false,true);
+    toast('Ошибка: '+e.message,true);
+  }
+}
+
 function loadCardPhoto(elOrUrl){
   var url=typeof elOrUrl==='string'?elOrUrl:(elOrUrl.dataset&&elOrUrl.dataset.url)||elOrUrl;
   const wrap=document.getElementById('cardPhotoWrap');
@@ -876,6 +918,10 @@ function showCard(e, dateStr, subStr, m, d){
     photoLink.href=url;
     photoLink.style.display='flex';
   }
+
+  // Reset delete button
+  var delBtn=document.getElementById('cardPhotoDel');
+  if(delBtn) delBtn.style.display='none';
 
   if(S.photoUrl){
     showPhoto(S.photoUrl);
