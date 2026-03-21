@@ -265,9 +265,6 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
   .leg{font-size:.67rem;white-space:nowrap;flex-shrink:0}
   .leg-r{display:none}
   .grid-area{padding:10px 4px 20px;justify-content:flex-start;overflow-x:hidden}
-  .ytable{width:calc(100vw - 8px)}
-  .ytable th,.ytable td.c{width:calc((100vw - 8px - 18px - 33px) / 12)!important;min-width:0!important;max-width:none!important}
-  .ytable td.dl{width:18px}
   .sheet{max-width:100%;border-radius:20px 20px 0 0}
   .sh-body{padding:0 16px 36px;max-height:85vh}
   .sh-head{padding:12px 16px 6px}
@@ -359,7 +356,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 
 <div class="grid-area">
   <table class="ytable" id="grid"></table>
-  <div class="version-footer">версия 1.7.5</div>
+  <div class="version-footer">версия 1.7.6</div>
 </div>
 
 <!-- SHEET (view + edit) -->
@@ -661,6 +658,22 @@ function applyTheme(t){
   var saved=localStorage.getItem('moodTheme')||'light';
   applyTheme(saved);
 })();
+
+function fitMobile(){
+  if(window.innerWidth<=640){
+    // (ширина экрана - паддинги - колонка дат - зазоры между 12 колонками) / 12
+    var cs=Math.floor((window.innerWidth - 8 - 18 - 11*3) / 12);
+    cs=Math.max(cs,18); // минимум 18px
+    document.documentElement.style.setProperty('--cs', cs+'px');
+    // Принудительно обновляем все ячейки
+    document.querySelectorAll('#grid td.c:not(.na)').forEach(function(td){
+      var rs=td.rowSpan||1;
+      var h=rs>1?(cs*rs+3*(rs-1)):cs;
+      td.style.cssText='height:'+h+'px!important;min-height:'+h+'px!important;max-height:'+h+'px!important;width:'+cs+'px!important;min-width:'+cs+'px!important;max-width:'+cs+'px!important';
+    });
+  }
+}
+window.addEventListener('resize', fitMobile);
 
 async function loadYear(){
   setSyncing(true);
