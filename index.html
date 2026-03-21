@@ -396,6 +396,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 <div class="grid-area">
   <table class="ytable" id="grid"></table>
 </div>
+<div class="version-footer">версия 1.4.2</div>
 
 <!-- SHEET (view + edit) -->
 <div class="overlay" id="ov" onclick="bgClose(event)">
@@ -1156,4 +1157,6 @@ let _tt;
 function toast(msg,bad){bad=bad||false;const t=document.getElementById('toast');t.textContent=msg;t.className='toast on'+(bad?' bad':'');clearTimeout(_tt);_tt=setTimeout(function(){t.className='toast';},3500);}
 </script>
 </body>
-</html>
+</html><div class="version-footer">версия 1.4.2</div>
+
+<!-- EDIT SHEET
