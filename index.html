@@ -331,6 +331,24 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
   /* +0.1 за каждое обновление */
 }
 [data-theme="dark"] .version-footer{color:rgba(232,241,248,.4)}
+
+/* ── THEME TOGGLE ── */
+.theme-toggle{display:flex;align-items:center;cursor:pointer;flex-shrink:0}
+.toggle-track{
+  width:30px;height:17px;border-radius:9px;
+  background:rgba(26,20,16,.18);
+  position:relative;transition:background .2s;
+  flex-shrink:0;
+}
+[data-theme="dark"] .toggle-track{background:rgba(85,153,255,.6)}
+.toggle-thumb{
+  width:13px;height:13px;border-radius:50%;
+  background:#fff;
+  position:absolute;top:2px;left:2px;
+  transition:transform .2s;
+  box-shadow:0 1px 3px rgba(0,0,0,.3);
+}
+[data-theme="dark"] .toggle-thumb{transform:translateX(13px)}
 </style>
 </head>
 <body>
@@ -397,8 +415,8 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 
 <div class="grid-area">
   <table class="ytable" id="grid"></table>
+  <div class="version-footer">версия 1.5.0</div>
 </div>
-<div class="version-footer">версия 1.5.0</div>
 
 <!-- SHEET (view + edit) -->
 <div class="overlay" id="ov" onclick="bgClose(event)">
