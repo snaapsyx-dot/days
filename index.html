@@ -47,7 +47,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 .size-wrap{display:flex;align-items:center;gap:6px}
 .size-wrap label{font-size:.73rem;color:var(--ink2);white-space:nowrap}
 #sizeSlider{width:52px;height:2px;accent-color:var(--ink2);cursor:pointer}
-@media(max-width:600px){.size-wrap{display:none}}
+@media(max-width:640px){.size-wrap label{display:none}}
 .sync{display:flex;align-items:center;gap:5px;font-size:.73rem;color:var(--ink2)}
 .sdot{width:5px;height:5px;border-radius:50%;background:var(--good);flex-shrink:0}
 .sdot.busy{background:var(--normal);animation:pulse .9s infinite}
@@ -351,6 +351,83 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
   transition:transform .2s,background .2s;
 }
 [data-theme="dark"] .toggle-thumb{transform:translateX(13px);background:#fff}
+
+/* ══════════════════════════════════════
+   MOBILE REDESIGN
+   ══════════════════════════════════════ */
+@media(max-width:640px){
+
+  /* Header — две строки на мобиле */
+  header{
+    height:auto;padding:10px 16px 8px;
+    flex-wrap:wrap;gap:8px;
+  }
+  .hlogo{font-size:1.1rem;flex:1}
+  /* Кнопки темы и размера — справа в первой строке */
+  .theme-toggle{order:2}
+  .size-wrap{order:3;gap:4px}
+  #sizeSlider{width:60px}
+  .sync{order:4;font-size:.68rem}
+
+  /* Tabs + дата — вторая строка */
+  .utabs{order:5;flex:1 1 100%}
+  .ynum{order:6;flex:1 1 100%;font-size:.72rem;padding-top:2px}
+
+  /* Legend — горизонтальный скролл */
+  .legend{
+    padding:0 16px;height:auto;min-height:28px;
+    padding-top:5px;padding-bottom:5px;
+    overflow-x:auto;flex-wrap:nowrap;gap:12px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .leg{font-size:.68rem;white-space:nowrap}
+  .leg-r{display:none}
+
+  /* Grid — full width, no centering */
+  .grid-area{padding:12px 16px 24px;justify-content:flex-start}
+  .ytable{width:100%}
+
+  /* Bottom sheet — full width on mobile */
+  .sheet{max-width:100%;border-radius:18px 18px 0 0}
+  .sh-body{padding:0 16px 32px;max-height:82vh}
+  .sh-head{padding:12px 16px 6px}
+  .sh-ttl{font-size:1.4rem}
+
+  /* Card view on mobile */
+  .card-body{padding:14px 16px 18px}
+  .card-date{font-size:1.3rem}
+  .card-photo{height:180px}
+
+  /* Mood picker — bigger touch targets */
+  .mbtn{max-width:52px}
+  .mlbl{font-size:.62rem}
+  .mpick{gap:8px}
+
+  /* Pin screen */
+  .pin-pad{grid-template-columns:repeat(3,72px);gap:10px}
+  .pin-btn{width:72px;height:72px;font-size:1.3rem}
+  .pin-title{font-size:2.2rem}
+  .pin-dots{gap:14px;margin:10px 0}
+  .pin-dot{width:14px;height:14px}
+
+  /* Buttons */
+  .btn-s,.btn-c{padding:12px}
+  .srow{gap:8px}
+
+  /* Note textarea */
+  .note{height:90px;font-size:.85rem}
+
+  /* Footer */
+  .version-footer{font-size:.62rem;padding:14px 0 24px}
+}
+
+/* Убираем hover-эффекты на тач-устройствах */
+@media(hover:none){
+  .c:hover{transform:none;box-shadow:none}
+  .c:active{transform:scale(1.15);z-index:10}
+  .mwrap:hover .mbtn{opacity:.28}
+  .mwrap:active .mbtn{opacity:.7}
+}
 </style>
 </head>
 <body>
@@ -417,7 +494,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 
 <div class="grid-area">
   <table class="ytable" id="grid"></table>
-  <div class="version-footer">версия 1.6.1</div>
+  <div class="version-footer">версия 1.7.0</div>
 </div>
 
 <!-- SHEET (view + edit) -->
@@ -1149,7 +1226,7 @@ async function saveDay(){
   renderGrid();
   setSyncing(true);
   try{
-    await jsonp({action:'saveDay',pin:localStorage.getItem(PIN_KEY)||'',user:S.user,month:m,day:d,
+    const res=await jsonp({action:'saveDay',pin:localStorage.getItem(PIN_KEY)||'',user:S.user,month:m,day:d,
       mood:S.mood1||'',note:encodeURIComponent(note),
       emoji:encodeURIComponent(emoji),split2:S.mood2||''});
     if(res&&res.error==='Unauthorized'){localStorage.removeItem(PIN_KEY);location.reload();return;}
