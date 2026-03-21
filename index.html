@@ -254,6 +254,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 
 /* MOBILE */
 @media(max-width:640px){
+  :root{--cs:26px}
   header{height:auto;padding:8px 16px;flex-wrap:wrap;gap:6px}
   .hlogo{font-size:1.05rem;flex:1}
   .size-wrap{display:none}
@@ -264,7 +265,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
   .legend::-webkit-scrollbar{display:none}
   .leg{font-size:.67rem;white-space:nowrap;flex-shrink:0}
   .leg-r{display:none}
-  .grid-area{padding:10px 12px 20px;justify-content:flex-start}
+  .grid-area{padding:10px 4px 20px;justify-content:flex-start;overflow-x:hidden}
   .sheet{max-width:100%;border-radius:20px 20px 0 0}
   .sh-body{padding:0 16px 36px;max-height:85vh}
   .sh-head{padding:12px 16px 6px}
@@ -356,7 +357,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 
 <div class="grid-area">
   <table class="ytable" id="grid"></table>
-  <div class="version-footer">версия 1.7.3</div>
+  <div class="version-footer">версия 1.7.4</div>
 </div>
 
 <!-- SHEET (view + edit) -->
