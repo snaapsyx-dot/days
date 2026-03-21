@@ -761,7 +761,8 @@ function driveThumb(url){
   return url;
 }
 
-function loadCardPhoto(url){
+function loadCardPhoto(elOrUrl){
+  var url=typeof elOrUrl==='string'?elOrUrl:(elOrUrl.dataset&&elOrUrl.dataset.url)||elOrUrl;
   const wrap=document.getElementById('cardPhotoWrap');
   wrap.innerHTML='<div class="card-photo-loading"><div class="spin"></div>Загрузка…</div>';
   const img=new Image();
@@ -836,7 +837,7 @@ function showCard(e, dateStr, subStr, m, d){
             localStorage.setItem('gvc',JSON.stringify(S.data));
           }
           // Показываем кнопку "Загрузить фото"
-          photoWrap.innerHTML='<div class="card-photo-placeholder" style="cursor:pointer;border:1px dashed var(--line2);border-radius:10px;margin-bottom:8px" onclick="loadCardPhoto(''+res.url+'')">📷 Нажми чтобы загрузить фото</div>';
+          photoWrap.innerHTML='<div class="card-photo-placeholder" style="cursor:pointer;border:1px dashed var(--line2);border-radius:10px;margin-bottom:8px" onclick="loadCardPhoto(this.dataset.url)" data-url="'+res.url+'">📷 Нажми чтобы загрузить фото</div>';
           photoLink.href=res.url;
           photoLink.style.display='flex';
         }
