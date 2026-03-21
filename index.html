@@ -372,8 +372,8 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 <header>
   <div class="hlogo">Время жить</div>
   <div class="utabs">
-    <button class="utab on" data-u="snaapsy" onclick="switchUser('snaapsy')">🌙 Snaapsy</button>
-    <button class="utab" data-u="winnieshe4k0" onclick="switchUser('winnieshe4k0')">☀️ Winnie</button>
+    <button class="utab on" data-u="snaapsy" onclick="switchUser('snaapsy')">🐺 Snaapsy</button>
+    <button class="utab" data-u="winnieshe4k0" onclick="switchUser('winnieshe4k0')">🐻 Winnie</button>
   </div>
   <span class="ynum" id="ynum"></span><span class="today-label" id="todayLabel"></span>
   <div class="size-wrap">
@@ -813,7 +813,7 @@ function openCell(m,d){
 
   const dt=new Date(S.year,m,d);
   const dateStr=d+' <em>'+MG[m]+'</em>';
-  const subStr=DW[dt.getDay()]+', '+S.year+'  ·  '+(S.user==='snaapsy'?'🌙 Snaapsy':'☀️ Winnieshe4k0');
+  const subStr=DW[dt.getDay()]+', '+S.year+'  ·  '+(S.user==='snaapsy'?'🐺 Snaapsy':'🐻 Winnieshe4k0');
 
   // Если у дня есть хотя бы один цвет — показываем карточку
   if(S.mood1){
