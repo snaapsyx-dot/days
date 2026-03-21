@@ -60,7 +60,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 .leg-r{font-size:.75rem;color:var(--ink3);font-style:italic;font-family:'Cormorant Garamond',serif;white-space:nowrap;margin-left:8px}
 
 /* GRID */
-.grid-area{flex:1;overflow:auto;padding:16px 20px 28px;display:flex;justify-content:center}
+.grid-area{flex:1;overflow:auto;padding:16px 20px 0;display:flex;flex-direction:column;align-items:center}
 .ytable{border-collapse:separate;border-spacing:3px}
 .ytable th{font-size:.58rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);padding-bottom:4px;text-align:center;width:var(--cs)}
 .ytable th.corner{width:18px}
@@ -324,11 +324,11 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 
 /* VERSION FOOTER */
 .version-footer{
-  text-align:center;padding:16px 0 28px;
-  font-size:.68rem;letter-spacing:.08em;
-  color:rgba(26,20,16,.45);
-  user-select:none;
-  /* Версия 1.4.2 | +0.1 за каждое обновление */
+  text-align:center;padding:20px 0 28px;
+  font-size:.65rem;letter-spacing:.08em;
+  color:rgba(26,20,16,.4);
+  user-select:none;width:100%;
+  /* +0.1 за каждое обновление */
 }
 [data-theme="dark"] .version-footer{color:rgba(232,241,248,.4)}
 </style>
@@ -398,7 +398,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 <div class="grid-area">
   <table class="ytable" id="grid"></table>
 </div>
-<div class="version-footer">версия 1.4.2</div>
+<div class="version-footer">версия 1.5.0</div>
 
 <!-- SHEET (view + edit) -->
 <div class="overlay" id="ov" onclick="bgClose(event)">
@@ -1157,6 +1157,5 @@ let _tt;
 function toast(msg,bad){bad=bad||false;const t=document.getElementById('toast');t.textContent=msg;t.className='toast on'+(bad?' bad':'');clearTimeout(_tt);_tt=setTimeout(function(){t.className='toast';},3500);}
 </script>
 </body>
-</html><div class="version-footer">версия 1.4.2</div>
-
+</html>
 <!-- EDIT SHEET
