@@ -958,27 +958,39 @@ function clearForm(){
 
 // ═══ MERGE ═══
 async function doMerge(){
-  const{m,d}=S.edit;
+  if(!S.edit){toast('Нет выбранного дня',true);return;}
+  const m=S.edit.m, d=S.edit.d;
   const endDay=parseInt(document.getElementById('mergeEnd').value);
   if(!endDay||endDay<=d){toast('Укажи конечный день (больше '+d+')',true);return;}
   setSyncing(true);
   try{
-    await jsonp({action:'mergeCells',pin:localStorage.getItem(PIN_KEY)||'',user:S.user,month:m,startDay:d,endDay:endDay});
+    const res=await jsonp({action:'mergeCells',pin:localStorage.getItem(PIN_KEY)||'',user:S.user,month:m,startDay:d,endDay:endDay});
+    if(res&&res.error)throw new Error(res.error);
+    setSyncing(false);
     toast('Объединено ✓');
+    closeSheet();
     await loadYear();
-  }catch(e){setSyncing(false,true);toast('Ошибка: '+e.message,true);}
-  closeSheet();
+  }catch(e){
+    setSyncing(false,true);
+    toast('Ошибка: '+e.message,true);
+  }
 }
 
 async function doUnmerge(){
-  const{m,d}=S.edit;
+  if(!S.edit){toast('Нет выбранного дня',true);return;}
+  const m=S.edit.m, d=S.edit.d;
   setSyncing(true);
   try{
-    await jsonp({action:'unmergeCells',pin:localStorage.getItem(PIN_KEY)||'',user:S.user,month:m,day:d});
+    const res=await jsonp({action:'unmergeCells',pin:localStorage.getItem(PIN_KEY)||'',user:S.user,month:m,day:d});
+    if(res&&res.error)throw new Error(res.error);
+    setSyncing(false);
     toast('Разъединено ✓');
+    closeSheet();
     await loadYear();
-  }catch(e){setSyncing(false,true);toast('Ошибка: '+e.message,true);}
-  closeSheet();
+  }catch(e){
+    setSyncing(false,true);
+    toast('Ошибка: '+e.message,true);
+  }
 }
 
 // ═══ PHOTO ═══
