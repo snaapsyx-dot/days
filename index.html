@@ -477,9 +477,15 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 var PIN_KEY  = 'moodPin';
 var USER_KEY = 'moodUser';
 var S_PIN = '';
-
-// Пины: snaapsy=2652, winnieshe4k0=2026
 var PINS = {'2652':'snaapsy','2026':'winnieshe4k0'};
+
+// S объявляем до пина чтобы pinSubmit мог менять S.user
+var S = {
+  user:'snaapsy', year:new Date().getFullYear(),
+  data:{snaapsy:{}, winnieshe4k0:{}, merged:[]},
+  edit:null, mood1:null, mood2:null, photoUrl:null, emoji:'',
+  splitOpen:false, _uploading:false,
+};
 
 function pinPress(d){
   if(S_PIN.length>=4)return;
@@ -549,14 +555,10 @@ const EMOJI_GROUPS = [
   {name:'Разное', items:['💪','🧠','💡','🔦','💰','💵','💳','🪙','📱','💻','🖥','📷','📸','📹','🎥','📞','☎️','📺','📻','🧭','⏰','⌛','📡','🔋','🔌','🔭','🔬','🩺','💊','💉','🧬','🪝','🧰','🚪','🛏','🛋','🧴','🧹','🧺','🧼','🛒','📚','📖','📝','✏️','🖊','🖋','📌','📍','📎','🔑','🗝','🔐','🔒','🔓','❤️','⭐','🌟','💥','🎯','🏆','🥇','💯','✅','❌','⚡','🔥','💧','🌊','🎵','🎶','🎸','🎹','🥁','🎻','🎺','🎷','🪕','🎤','🎧','🎬','📸','🏖️','🏝','🏕','⛺','🌅','🌄','🌠','🎑','🎆','🎇']}
 ];
 
-const S = {
-  user:'snaapsy', year:TODAY.y,
-  data:{snaapsy:{}, winnieshe4k0:{}, merged:[]},
-  edit:null, mood1:null, mood2:null, photoUrl:null, emoji:'',
-  splitOpen:false,
-};
+// S объявлен выше (до пин-кода)
 
 // ═══ INIT ═══
+S.year = TODAY.y;
 document.getElementById('ynum').textContent = S.year;
 // Показываем сегодняшнюю дату вместо просто года
 const todayEl=document.getElementById('todayLabel');
