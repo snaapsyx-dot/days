@@ -356,7 +356,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 
 <div class="grid-area">
   <table class="ytable" id="grid"></table>
-  <div class="version-footer">версия 1.7.6</div>
+  <div class="version-footer">версия 1.7.7</div>
 </div>
 
 <!-- SHEET (view + edit) -->
@@ -661,15 +661,20 @@ function applyTheme(t){
 
 function fitMobile(){
   if(window.innerWidth<=640){
-    // (ширина экрана - паддинги - колонка дат - зазоры между 12 колонками) / 12
-    var cs=Math.floor((window.innerWidth - 8 - 18 - 11*3) / 12);
-    cs=Math.max(cs,18); // минимум 18px
+    var padLeft=28; // ширина колонки дат (цифры + отступ)
+    var padH=8;     // горизонтальные паддинги грида (4px с каждой стороны)
+    var gaps=11*3;  // зазоры между 12 колонками
+    var cs=Math.floor((window.innerWidth - padLeft - padH - gaps) / 12);
+    cs=Math.max(cs,16);
     document.documentElement.style.setProperty('--cs', cs+'px');
-    // Принудительно обновляем все ячейки
     document.querySelectorAll('#grid td.c:not(.na)').forEach(function(td){
       var rs=td.rowSpan||1;
       var h=rs>1?(cs*rs+3*(rs-1)):cs;
       td.style.cssText='height:'+h+'px!important;min-height:'+h+'px!important;max-height:'+h+'px!important;width:'+cs+'px!important;min-width:'+cs+'px!important;max-width:'+cs+'px!important';
+    });
+    // Обновляем ширину dl колонки
+    document.querySelectorAll('#grid td.dl').forEach(function(td){
+      td.style.width=padLeft+'px';td.style.minWidth=padLeft+'px';
     });
   }
 }
