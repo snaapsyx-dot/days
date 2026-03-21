@@ -37,8 +37,7 @@ input,textarea{font-family:inherit;color:var(--ink)}
 
 /* HEADER */
 header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--line);padding:0 20px;height:48px;display:flex;align-items:center;gap:14px}
-.hlogo{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;margin-right:auto;white-space:nowrap;letter-spacing:-.01em}
-.hlogo em{font-style:italic;font-weight:300}
+.hlogo{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:400;margin-right:auto;white-space:nowrap;letter-spacing:0;font-style:italic}
 .utabs{display:flex;gap:2px;background:rgba(26,20,16,.06);border-radius:8px;padding:2px}
 .utab{padding:4px 11px;border-radius:6px;font-size:.73rem;font-weight:400;color:var(--ink2);transition:all .15s;white-space:nowrap}
 .utab.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 4px rgba(26,20,16,.1);font-weight:500}
@@ -327,11 +326,11 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 .version-footer{
   text-align:center;padding:16px 0 28px;
   font-size:.68rem;letter-spacing:.08em;
-  color:rgba(26,20,16,.35);
+  color:rgba(26,20,16,.45);
   user-select:none;
   /* Версия 1.4.2 | +0.1 за каждое обновление */
 }
-[data-theme="dark"] .version-footer{color:rgba(232,241,248,.3)}
+[data-theme="dark"] .version-footer{color:rgba(232,241,248,.4)}
 </style>
 </head>
 <body>
@@ -371,7 +370,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 </div>
 
 <header>
-  <div class="hlogo">Время <em>жить</em></div>
+  <div class="hlogo">Время жить</div>
   <div class="utabs">
     <button class="utab on" data-u="snaapsy" onclick="switchUser('snaapsy')">🌙 Snaapsy</button>
     <button class="utab" data-u="winnieshe4k0" onclick="switchUser('winnieshe4k0')">☀️ Winnie</button>
@@ -612,13 +611,11 @@ const EMOJI_GROUPS = [
 
 // ═══ INIT ═══
 S.year = TODAY.y;
-document.getElementById('ynum').textContent = S.year;
-// Показываем сегодняшнюю дату вместо просто года
+// Показываем "21 марта 2026" вместо просто года
+const MG_FULL=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+document.getElementById('ynum').textContent = TODAY.d+' '+MG_FULL[TODAY.m]+' '+TODAY.y;
 const todayEl=document.getElementById('todayLabel');
-if(todayEl){
-  const MG_SHORT=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
-  todayEl.textContent=' · '+TODAY.d+' '+MG_SHORT[TODAY.m];
-}
+if(todayEl) todayEl.textContent='';
 buildEmojiPanel();
 try{const c=localStorage.getItem('gvc');if(c){S.data=JSON.parse(c);renderGrid();}}catch(e){}
 const sv=localStorage.getItem('cellSize');
