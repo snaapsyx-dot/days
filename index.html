@@ -278,6 +278,56 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
   .month-title{font-size:1.25rem}
 }
 
+/* LOCATION */
+.loc-zone{border:1.5px dashed var(--line2);border-radius:10px;padding:12px;margin-bottom:14px;transition:border-color .15s}
+.loc-zone:hover{border-color:var(--ink2)}
+.loc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.loc-label{font-size:.76rem;font-weight:500;color:var(--ink)}
+.loc-clear{font-size:.7rem;color:var(--ink3);cursor:pointer;padding:2px 6px;border-radius:5px;transition:background .12s;display:none}
+.loc-clear:hover{background:rgba(26,20,16,.08)}
+.loc-input-row{display:flex;gap:6px;align-items:center}
+.loc-input{flex:1;border:1px solid var(--line2);border-radius:8px;padding:7px 10px;font-size:.75rem;background:var(--bg);color:var(--ink);transition:border-color .15s}
+.loc-input:focus{outline:none;border-color:var(--ink2)}
+.loc-input::placeholder{color:var(--ink3)}
+.btn-loc-map{background:rgba(26,20,16,.06);color:var(--ink2);border-radius:8px;padding:7px 10px;font-size:.78rem;white-space:nowrap;transition:background .12s;flex-shrink:0}
+.btn-loc-map:hover{background:rgba(26,20,16,.13)}
+.loc-preview{margin-top:10px;border-radius:8px;overflow:hidden;display:none;position:relative}
+.loc-preview iframe{width:100%;height:180px;border:none;border-radius:8px;display:block}
+.loc-preview-link{display:flex;align-items:center;gap:5px;margin-top:6px;font-size:.72rem;color:var(--super);text-decoration:none}
+.loc-preview-link:hover{text-decoration:underline}
+[data-theme="dark"] .loc-input{background:rgba(232,241,248,.06);color:var(--ink);border-color:var(--line2)}
+[data-theme="dark"] .loc-input::placeholder{color:var(--ink3)}
+[data-theme="dark"] .btn-loc-map{background:rgba(232,241,248,.1);color:var(--ink2)}
+[data-theme="dark"] .btn-loc-map:hover{background:rgba(232,241,248,.18)}
+
+/* MAP PICKER MODAL */
+.map-modal{position:fixed;inset:0;z-index:500;display:flex;flex-direction:column;background:var(--surface);transform:translateY(100%);transition:transform .28s cubic-bezier(.32,0,.15,1)}
+.map-modal.open{transform:translateY(0)}
+.map-modal-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);flex-shrink:0}
+.map-modal-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;flex:1;font-style:italic}
+.map-search-row{display:flex;gap:8px;padding:10px 16px;flex-shrink:0;border-bottom:1px solid var(--line)}
+.map-search-input{flex:1;border:1px solid var(--line2);border-radius:8px;padding:8px 11px;font-size:.8rem;background:var(--bg);color:var(--ink);transition:border-color .15s}
+.map-search-input:focus{outline:none;border-color:var(--ink2)}
+.btn-map-search{background:var(--ink);color:#fff;border-radius:8px;padding:8px 14px;font-size:.78rem;font-weight:500;transition:opacity .15s;flex-shrink:0}
+.btn-map-search:hover{opacity:.85}
+.map-frame-wrap{flex:1;position:relative;overflow:hidden}
+.map-frame-wrap iframe{width:100%;height:100%;border:none;display:block}
+.map-bottom{padding:12px 16px;border-top:1px solid var(--line);flex-shrink:0;display:flex;flex-direction:column;gap:8px}
+.map-url-row{display:flex;gap:8px;align-items:center}
+.map-url-input{flex:1;border:1px solid var(--line2);border-radius:8px;padding:7px 10px;font-size:.72rem;background:var(--bg);color:var(--ink)}
+.map-url-input:focus{outline:none;border-color:var(--ink2)}
+.map-url-input::placeholder{color:var(--ink3)}
+.btn-map-confirm{background:var(--ink);color:#fff;border-radius:8px;padding:8px 14px;font-size:.78rem;font-weight:500;transition:opacity .15s;flex-shrink:0}
+.btn-map-confirm:hover{opacity:.85}
+.map-hint{font-size:.65rem;color:var(--ink3);line-height:1.5}
+[data-theme="dark"] .map-search-input,.map-url-input{background:rgba(232,241,248,.06);color:var(--ink)}
+
+/* card location */
+.card-location{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.card-location-frame{width:100%;height:160px;border:none;border-radius:10px;display:block;margin-bottom:8px}
+.card-location-link{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;color:var(--super);text-decoration:none}
+.card-location-link:hover{text-decoration:underline}
+
 /* VERSION FOOTER */
 .version-footer{text-align:center;padding:20px 0 28px;font-size:.65rem;letter-spacing:.08em;color:rgba(26,20,16,.4);user-select:none;width:100%;/* ★ ВЕРСИЯ: +0.1 за каждое обновление сайта ★ */}
 [data-theme="dark"] .version-footer{color:rgba(232,241,248,.4)}
@@ -407,7 +457,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 </div>
 <div class="grid-area active" id="yearArea">
   <table class="ytable" id="grid"></table>
-  <div class="version-footer">версия 1.7.7</div>
+  <div class="version-footer">версия 1.8.0</div>
 </div>
 
 <div class="month-area" id="monthArea">
@@ -417,7 +467,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
     <button class="month-nav-btn" onclick="monthNav(1)">›</button>
   </div>
   <table class="mcal" id="mcal"></table>
-  <div class="version-footer">версия 1.7.7</div>
+  <div class="version-footer">версия 1.8.0</div>
 </div>
 
 <!-- SHEET (view + edit) -->
@@ -441,6 +491,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
         </div>
         <div class="card-moods" id="cardMoods"></div>
         <div id="cardNoteWrap"></div>
+        <div id="cardLocationWrap"></div>
         <div class="card-actions">
           <button class="btn-edit" onclick="switchToEdit()">✏️ Редактировать</button>
           <a class="btn-photo-open" id="cardPhotoLink" style="display:none" target="_blank">📎 Фото</a>
@@ -525,6 +576,23 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
         <a class="pz-link" id="pLink" target="_blank">📎 Открыть на Drive →</a>
       </div>
 
+      <!-- МЕСТОПОЛОЖЕНИЕ -->
+      <div class="slbl">Место на карте</div>
+      <div class="loc-zone">
+        <div class="loc-header">
+          <span class="loc-label">📍 Яндекс Карты</span>
+          <span class="loc-clear" id="locClear" onclick="clearLocation()">✕ убрать</span>
+        </div>
+        <div class="loc-input-row">
+          <input type="text" class="loc-input" id="locInput" placeholder="Вставь ссылку или найди место…" oninput="onLocInput()">
+          <button class="btn-loc-map" onclick="openMapPicker()">🗺 Карта</button>
+        </div>
+        <div class="loc-preview" id="locPreview">
+          <iframe id="locFrame" src="" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <a class="loc-preview-link" id="locLink" href="#" target="_blank">↗ Открыть в Яндекс Картах</a>
+        </div>
+      </div>
+
       <div class="srow">
         <button class="btn-s" id="btnSave" onclick="saveDay()">Сохранить</button>
         <button class="btn-c" onclick="clearForm()">Очистить</button>
@@ -544,6 +612,28 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
   <div id="epanelContent"></div>
 </div>
 
+<!-- MAP PICKER MODAL -->
+<div class="map-modal" id="mapModal">
+  <div class="map-modal-head">
+    <span class="map-modal-title">Выбери место на карте</span>
+    <button class="sh-x" onclick="closeMapPicker()">✕</button>
+  </div>
+  <div class="map-search-row">
+    <input type="text" class="map-search-input" id="mapSearchInput" placeholder="Поиск: кафе, улица, город…" onkeydown="if(event.key==='Enter')doMapSearch()">
+    <button class="btn-map-search" onclick="doMapSearch()">Найти</button>
+  </div>
+  <div class="map-frame-wrap">
+    <iframe id="mapPickerFrame" src="https://yandex.ru/map-widget/v1/?lang=ru_RU&scroll=false" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+  <div class="map-bottom">
+    <div class="map-hint">Найди нужное место через поиск, затем скопируй ссылку из Яндекс Карт и вставь ниже — или просто вставь любую ссылку на место.</div>
+    <div class="map-url-row">
+      <input type="text" class="map-url-input" id="mapUrlInput" placeholder="Вставь ссылку на место (yandex.ru/maps/…)">
+      <button class="btn-map-confirm" onclick="confirmMapLocation()">Прикрепить</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -558,7 +648,7 @@ var PINS = {'2652':'snaapsy','2026':'winnieshe4k0'};
 var S = {
   user:'snaapsy', year:new Date().getFullYear(),
   data:{snaapsy:{}, winnieshe4k0:{}, merged:[]},
-  edit:null, mood1:null, mood2:null, photoUrl:null, emoji:'',
+  edit:null, mood1:null, mood2:null, photoUrl:null, emoji:'', locationUrl:null,
   splitOpen:false, _uploading:false,
 };
 
@@ -884,7 +974,7 @@ function openCell(m,d){
   S.edit={m,d};
   const e=(S.data[S.user]&&S.data[S.user][m+'-'+d])||{};
   S.mood1=e.mood||null; S.mood2=e.split2||null;
-  S.photoUrl=e.photoUrl||null; S.emoji=e.emoji||'';
+  S.photoUrl=e.photoUrl||null; S.emoji=e.emoji||''; S.locationUrl=e.locationUrl||null;
   S.splitOpen=!!S.mood2;
 
   const dt=new Date(S.year,m,d);
@@ -1006,6 +1096,18 @@ function showCard(e, dateStr, subStr, m, d){
   var delBtn=document.getElementById('cardPhotoDel');
   if(delBtn) delBtn.style.display='none';
 
+  // Location
+  const locWrap=document.getElementById('cardLocationWrap');
+  if(S.locationUrl){
+    const embedUrl=makeYandexEmbed(S.locationUrl);
+    locWrap.innerHTML='<div class="card-location">'
+      +(embedUrl?'<iframe class="card-location-frame" src="'+embedUrl+'" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>':'')
+      +'<a class="card-location-link" href="'+S.locationUrl+'" target="_blank">📍 Открыть на Яндекс Картах</a>'
+      +'</div>';
+  } else {
+    locWrap.innerHTML='';
+  }
+
   if(S.photoUrl){
     showPhoto(S.photoUrl);
   } else {
@@ -1050,6 +1152,11 @@ function showEditForm(e, dateStr, subStr, m, d){
   lnk.style.display=S.photoUrl?'block':'none';
   if(S.photoUrl)lnk.href=S.photoUrl;
 
+  // Location
+  const locInput=document.getElementById('locInput');
+  locInput.value=S.locationUrl||'';
+  renderLocPreview(S.locationUrl);
+
   const mergeEl=(S.data.merged||[]).find(function(mg){return mg.user===S.user&&mg.month===m&&mg.day===d;});
   document.getElementById('mergeEnd').value=d+1;
   document.getElementById('mergeEnd').min=d+1;
@@ -1075,12 +1182,14 @@ function pickMood(which,id){
 }
 
 function clearForm(){
-  S.mood1=null;S.mood2=null;S.photoUrl=null;S.emoji='';
+  S.mood1=null;S.mood2=null;S.photoUrl=null;S.emoji='';S.locationUrl=null;
   document.querySelectorAll('.mwrap').forEach(function(w){w.classList.remove('on');});
   document.getElementById('noteIn').value='';
   document.getElementById('emIn').textContent='✦';
   document.getElementById('pImg').style.display='none';
   document.getElementById('pLink').style.display='none';
+  document.getElementById('locInput').value='';
+  renderLocPreview(null);
   clearSplit();
 }
 
@@ -1179,6 +1288,84 @@ async function uploadPhoto(filename,dataUrl){
   }
 }
 
+// ═══ LOCATION ═══
+function makeYandexEmbed(url){
+  if(!url) return null;
+  // Already an embed URL
+  if(url.indexOf('map-widget')!==-1) return url;
+  // Extract coordinates from yandex maps URL like ll=37.617,55.755 or /@lat,lng
+  var ll = url.match(/ll=([0-9.\-]+),([0-9.\-]+)/);
+  if(ll) return 'https://yandex.ru/map-widget/v1/?ll='+ll[1]+','+ll[2]+'&z=14&lang=ru_RU';
+  // Try to match ?text= (search result)
+  var txt = url.match(/[?&]text=([^&]+)/);
+  if(txt) return 'https://yandex.ru/map-widget/v1/?text='+txt[1]+'&lang=ru_RU';
+  // Try to match /org/ id
+  var org = url.match(/\/org\/[^/]+\/(\d+)/);
+  if(org) return 'https://yandex.ru/map-widget/v1/?ol=biz&oid='+org[1]+'&lang=ru_RU';
+  // Fallback: if it's any yandex maps URL, wrap it as map widget with text
+  if(url.indexOf('yandex')!==-1) return 'https://yandex.ru/map-widget/v1/?lang=ru_RU';
+  return null;
+}
+
+function renderLocPreview(url){
+  const preview=document.getElementById('locPreview');
+  const locClear=document.getElementById('locClear');
+  if(!url){
+    if(preview) preview.style.display='none';
+    if(locClear) locClear.style.display='none';
+    return;
+  }
+  if(locClear) locClear.style.display='inline';
+  if(preview){
+    preview.style.display='block';
+    const frame=document.getElementById('locFrame');
+    const lnk=document.getElementById('locLink');
+    const embedUrl=makeYandexEmbed(url);
+    if(embedUrl && frame) frame.src=embedUrl;
+    if(lnk){lnk.href=url;}
+  }
+}
+
+function onLocInput(){
+  const val=document.getElementById('locInput').value.trim();
+  S.locationUrl=val||null;
+  renderLocPreview(S.locationUrl);
+}
+
+function clearLocation(){
+  S.locationUrl=null;
+  document.getElementById('locInput').value='';
+  renderLocPreview(null);
+}
+
+function openMapPicker(){
+  document.getElementById('mapModal').classList.add('open');
+  document.getElementById('mapUrlInput').value=S.locationUrl||'';
+}
+
+function closeMapPicker(){
+  document.getElementById('mapModal').classList.remove('open');
+}
+
+function doMapSearch(){
+  const q=document.getElementById('mapSearchInput').value.trim();
+  if(!q) return;
+  const encoded=encodeURIComponent(q);
+  document.getElementById('mapPickerFrame').src='https://yandex.ru/map-widget/v1/?text='+encoded+'&lang=ru_RU&scroll=false';
+  // Also pre-fill URL input with a search link
+  document.getElementById('mapUrlInput').value='https://yandex.ru/maps/?text='+encoded;
+}
+
+function confirmMapLocation(){
+  const url=document.getElementById('mapUrlInput').value.trim();
+  if(!url){toast('Вставь ссылку на место',true);return;}
+  S.locationUrl=url;
+  document.getElementById('locInput').value=url;
+  renderLocPreview(url);
+  closeMapPicker();
+  toast('Место прикреплено ✓');
+}
+
 // ═══ SAVE ═══
 async function saveDay(){
   const{m,d}=S.edit;
@@ -1187,9 +1374,9 @@ async function saveDay(){
   const btn=document.getElementById('btnSave');
   btn.disabled=true;btn.textContent='Сохраняю…';
   const key=m+'-'+d;
-  if(S.mood1||note||emoji||S.photoUrl||S.mood2){
+  if(S.mood1||note||emoji||S.photoUrl||S.mood2||S.locationUrl){
     if(!S.data[S.user])S.data[S.user]={};
-    S.data[S.user][key]={mood:S.mood1,note,emoji,split2:S.mood2,photoUrl:S.photoUrl||''};
+    S.data[S.user][key]={mood:S.mood1,note,emoji,split2:S.mood2,photoUrl:S.photoUrl||'',locationUrl:S.locationUrl||''};
   }else{if(S.data[S.user])delete S.data[S.user][key];}
   localStorage.setItem('gvc',JSON.stringify(S.data));
   renderCurrent();
@@ -1197,7 +1384,8 @@ async function saveDay(){
   try{
     const res=await jsonp({action:'saveDay',pin:localStorage.getItem(PIN_KEY)||'',user:S.user,month:m,day:d,
       mood:S.mood1||'',note:encodeURIComponent(note),
-      emoji:encodeURIComponent(emoji),split2:S.mood2||''});
+      emoji:encodeURIComponent(emoji),split2:S.mood2||'',
+      locationUrl:encodeURIComponent(S.locationUrl||'')});
     if(res&&res.error==='Unauthorized'){localStorage.removeItem(PIN_KEY);location.reload();return;}
     setSyncing(false);toast('Сохранено ✓');
   }catch(e){setSyncing(false,true);toast('Ошибка: '+e.message,true);}
