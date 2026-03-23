@@ -308,19 +308,26 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 .map-search-row{display:flex;gap:8px;padding:10px 16px;flex-shrink:0;border-bottom:1px solid var(--line)}
 .map-search-input{flex:1;border:1px solid var(--line2);border-radius:8px;padding:8px 11px;font-size:.8rem;background:var(--bg);color:var(--ink);transition:border-color .15s}
 .map-search-input:focus{outline:none;border-color:var(--ink2)}
-.btn-map-search{background:var(--ink);color:#fff;border-radius:8px;padding:8px 14px;font-size:.78rem;font-weight:500;transition:opacity .15s;flex-shrink:0}
+.map-search-input::placeholder{color:var(--ink3)}
+.btn-map-search{background:var(--ink);color:var(--bg);border-radius:8px;padding:8px 14px;font-size:.78rem;font-weight:500;transition:opacity .15s;flex-shrink:0}
 .btn-map-search:hover{opacity:.85}
+.map-hint-bar{padding:7px 16px;font-size:.68rem;color:var(--ink2);background:rgba(26,20,16,.04);border-bottom:1px solid var(--line);flex-shrink:0;text-align:center}
 .map-frame-wrap{flex:1;position:relative;overflow:hidden}
 .map-frame-wrap iframe{width:100%;height:100%;border:none;display:block}
-.map-bottom{padding:12px 16px;border-top:1px solid var(--line);flex-shrink:0;display:flex;flex-direction:column;gap:8px}
-.map-url-row{display:flex;gap:8px;align-items:center}
-.map-url-input{flex:1;border:1px solid var(--line2);border-radius:8px;padding:7px 10px;font-size:.72rem;background:var(--bg);color:var(--ink)}
-.map-url-input:focus{outline:none;border-color:var(--ink2)}
-.map-url-input::placeholder{color:var(--ink3)}
-.btn-map-confirm{background:var(--ink);color:#fff;border-radius:8px;padding:8px 14px;font-size:.78rem;font-weight:500;transition:opacity .15s;flex-shrink:0}
-.btn-map-confirm:hover{opacity:.85}
-.map-hint{font-size:.65rem;color:var(--ink3);line-height:1.5}
-[data-theme="dark"] .map-search-input,.map-url-input{background:rgba(232,241,248,.06);color:var(--ink)}
+
+.map-picked-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--line);flex-shrink:0;background:var(--surface)}
+.map-picked-icon{font-size:1.1rem;flex-shrink:0}
+.map-picked-name{flex:1;font-size:.78rem;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.map-dbl-overlay{position:absolute;inset:0;z-index:5;cursor:crosshair;background:rgba(0,0,0,.01)}
+.btn-map-attach{background:var(--ink);color:var(--bg);border-radius:8px;padding:8px 16px;font-size:.78rem;font-weight:500;transition:opacity .15s;flex-shrink:0;white-space:nowrap;border:none;cursor:pointer;font-family:inherit}
+.btn-map-attach:hover{opacity:.85}
+[data-theme="dark"] .map-modal{background:var(--surface)}
+[data-theme="dark"] .map-search-input{background:rgba(232,241,248,.06);color:var(--ink);border-color:var(--line2)}
+[data-theme="dark"] .map-search-input::placeholder{color:var(--ink3)}
+[data-theme="dark"] .map-hint-bar{background:rgba(232,241,248,.04);color:var(--ink2)}
+[data-theme="dark"] .btn-map-search{background:var(--ink);color:var(--bg)}
+[data-theme="dark"] .btn-map-attach{background:var(--ink);color:var(--bg)}
+[data-theme="dark"] .map-picked-bar{background:var(--surface)}
 
 /* card location */
 .card-location{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
@@ -457,7 +464,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 </div>
 <div class="grid-area active" id="yearArea">
   <table class="ytable" id="grid"></table>
-  <div class="version-footer">версия 1.8.0</div>
+  <div class="version-footer">версия 1.8.2</div>
 </div>
 
 <div class="month-area" id="monthArea">
@@ -467,7 +474,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
     <button class="month-nav-btn" onclick="monthNav(1)">›</button>
   </div>
   <table class="mcal" id="mcal"></table>
-  <div class="version-footer">версия 1.8.0</div>
+  <div class="version-footer">версия 1.8.2</div>
 </div>
 
 <!-- SHEET (view + edit) -->
@@ -622,15 +629,16 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
     <input type="text" class="map-search-input" id="mapSearchInput" placeholder="Поиск: кафе, улица, город…" onkeydown="if(event.key==='Enter')doMapSearch()">
     <button class="btn-map-search" onclick="doMapSearch()">Найти</button>
   </div>
-  <div class="map-frame-wrap">
-    <iframe id="mapPickerFrame" src="https://yandex.ru/map-widget/v1/?lang=ru_RU&scroll=false" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  <div class="map-hint-bar" id="mapHintBar">🔍 Найди место через поиск выше</div>
+  <div class="map-frame-wrap" id="mapFrameWrap">
+    <iframe id="mapPickerFrame" src="about:blank" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <!-- Оверлей активируется только после поиска для перехвата двойного клика -->
+    <div class="map-dbl-overlay" id="mapDblOverlay" ondblclick="onMapDblClick(event)" style="display:none"></div>
   </div>
-  <div class="map-bottom">
-    <div class="map-hint">Найди нужное место через поиск, затем скопируй ссылку из Яндекс Карт и вставь ниже — или просто вставь любую ссылку на место.</div>
-    <div class="map-url-row">
-      <input type="text" class="map-url-input" id="mapUrlInput" placeholder="Вставь ссылку на место (yandex.ru/maps/…)">
-      <button class="btn-map-confirm" onclick="confirmMapLocation()">Прикрепить</button>
-    </div>
+  <div class="map-picked-bar" id="mapPickedBar" style="display:none">
+    <span class="map-picked-icon">📍</span>
+    <span class="map-picked-name" id="mapPickedName">Место выбрано</span>
+    <button class="btn-map-attach" onclick="attachPickedLocation()">Прикрепить ✓</button>
   </div>
 </div>
 
@@ -900,7 +908,8 @@ function renderGrid(){
       const md2=e&&e.split2?e.split2:'';
       const em=e&&e.emoji?e.emoji:'';
       const rawNote=e&&e.note?e.note:'';
-      const nt=rawNote.trim().length>0;
+      const noteDisplay=rawNote.replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').trim();
+      const nt=noteDisplay.length>0;
       const hasPhoto=!!(e&&e.photoUrl)||rawNote.indexOf('📎')!==-1;
       const isToday=S.year===TODAY.y&&m===TODAY.m&&d===TODAY.d;
       const isMerged=rs>1;
@@ -974,7 +983,11 @@ function openCell(m,d){
   S.edit={m,d};
   const e=(S.data[S.user]&&S.data[S.user][m+'-'+d])||{};
   S.mood1=e.mood||null; S.mood2=e.split2||null;
-  S.photoUrl=e.photoUrl||null; S.emoji=e.emoji||''; S.locationUrl=e.locationUrl||null;
+  S.photoUrl=e.photoUrl||null; S.emoji=e.emoji||'';
+  // Локация: сначала из отдельного поля, потом из note через маркер 📍
+  var _rawNote=e.note||'';
+  var _locMatch=_rawNote.match(/\n?📍 (.+)/);
+  S.locationUrl=e.locationUrl||((_locMatch&&_locMatch[1])||null);
   S.splitOpen=!!S.mood2;
 
   const dt=new Date(S.year,m,d);
@@ -1073,7 +1086,7 @@ function showCard(e, dateStr, subStr, m, d){
   // Заметка — убираем строку с ссылкой на фото
   const noteWrap=document.getElementById('cardNoteWrap');
   const rawNote=(e.note||'');
-  const noteText=rawNote.replace(/\n?📎 .+/g,'').trim();
+  const noteText=rawNote.replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').trim();
   if(noteText){
     noteWrap.innerHTML='<div class="slbl" style="margin-bottom:6px">Мнение о дне</div><p class="card-note">'+noteText.replace(/</g,'&lt;').replace(/\n/g,'<br>')+'</p>';
   } else {
@@ -1136,7 +1149,7 @@ function showEditForm(e, dateStr, subStr, m, d){
 
   document.getElementById('sttl').innerHTML=dateStr;
   document.getElementById('ssub').textContent=subStr.replace(/<[^>]+>/g,'');
-  document.getElementById('noteIn').value=e.note||'';
+  document.getElementById('noteIn').value=(e.note||'').replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').trim();
   document.getElementById('emIn').textContent=S.emoji||'✦';
 
   document.getElementById('splitSection').classList.toggle('open',S.splitOpen);
@@ -1289,27 +1302,27 @@ async function uploadPhoto(filename,dataUrl){
 }
 
 // ═══ LOCATION ═══
+var _mapPicked = null;
+var _mapCurrentSearch = '';
+
 function makeYandexEmbed(url){
   if(!url) return null;
-  // Already an embed URL
   if(url.indexOf('map-widget')!==-1) return url;
-  // Extract coordinates from yandex maps URL like ll=37.617,55.755 or /@lat,lng
-  var ll = url.match(/ll=([0-9.\-]+),([0-9.\-]+)/);
-  if(ll) return 'https://yandex.ru/map-widget/v1/?ll='+ll[1]+','+ll[2]+'&z=14&lang=ru_RU';
-  // Try to match ?text= (search result)
+  var ll = url.match(/ll=([0-9.-]+),([0-9.-]+)/);
+  if(ll) return 'https://yandex.ru/map-widget/v1/?ll='+ll[1]+','+ll[2]+'&z=15&lang=ru_RU&pt='+ll[1]+','+ll[2]+',pm2rdm';
+  var pt = url.match(/pt=([0-9.-]+),([0-9.-]+)/);
+  if(pt) return 'https://yandex.ru/map-widget/v1/?ll='+pt[1]+','+pt[2]+'&z=15&lang=ru_RU&pt='+pt[1]+','+pt[2]+',pm2rdm';
   var txt = url.match(/[?&]text=([^&]+)/);
   if(txt) return 'https://yandex.ru/map-widget/v1/?text='+txt[1]+'&lang=ru_RU';
-  // Try to match /org/ id
-  var org = url.match(/\/org\/[^/]+\/(\d+)/);
-  if(org) return 'https://yandex.ru/map-widget/v1/?ol=biz&oid='+org[1]+'&lang=ru_RU';
-  // Fallback: if it's any yandex maps URL, wrap it as map widget with text
+  var org = url.match(/\/org\/[^\/]+(\/(\d+))/);
+  if(org) return 'https://yandex.ru/map-widget/v1/?ol=biz&oid='+org[2]+'&lang=ru_RU';
   if(url.indexOf('yandex')!==-1) return 'https://yandex.ru/map-widget/v1/?lang=ru_RU';
   return null;
 }
 
 function renderLocPreview(url){
-  const preview=document.getElementById('locPreview');
-  const locClear=document.getElementById('locClear');
+  var preview=document.getElementById('locPreview');
+  var locClear=document.getElementById('locClear');
   if(!url){
     if(preview) preview.style.display='none';
     if(locClear) locClear.style.display='none';
@@ -1318,16 +1331,16 @@ function renderLocPreview(url){
   if(locClear) locClear.style.display='inline';
   if(preview){
     preview.style.display='block';
-    const frame=document.getElementById('locFrame');
-    const lnk=document.getElementById('locLink');
-    const embedUrl=makeYandexEmbed(url);
-    if(embedUrl && frame) frame.src=embedUrl;
-    if(lnk){lnk.href=url;}
+    var frame=document.getElementById('locFrame');
+    var lnk=document.getElementById('locLink');
+    var embedUrl=makeYandexEmbed(url);
+    if(embedUrl&&frame) frame.src=embedUrl;
+    if(lnk) lnk.href=url;
   }
 }
 
 function onLocInput(){
-  const val=document.getElementById('locInput').value.trim();
+  var val=document.getElementById('locInput').value.trim();
   S.locationUrl=val||null;
   renderLocPreview(S.locationUrl);
 }
@@ -1339,8 +1352,18 @@ function clearLocation(){
 }
 
 function openMapPicker(){
+  _mapPicked=null;
+  _mapCurrentSearch='';
+  document.getElementById('mapPickedBar').style.display='none';
+  document.getElementById('mapSearchInput').value='';
+  document.getElementById('mapHintBar').textContent='🔍 Найди место через поиск выше';
+  var ov=document.getElementById('mapDblOverlay');
+  if(ov) ov.style.display='none';
+  var frame=document.getElementById('mapPickerFrame');
+  if(!frame.src||frame.src==='about:blank'){
+    frame.src='https://yandex.ru/map-widget/v1/?lang=ru_RU&scroll=true';
+  }
   document.getElementById('mapModal').classList.add('open');
-  document.getElementById('mapUrlInput').value=S.locationUrl||'';
 }
 
 function closeMapPicker(){
@@ -1348,44 +1371,120 @@ function closeMapPicker(){
 }
 
 function doMapSearch(){
-  const q=document.getElementById('mapSearchInput').value.trim();
+  var q=document.getElementById('mapSearchInput').value.trim();
   if(!q) return;
-  const encoded=encodeURIComponent(q);
-  document.getElementById('mapPickerFrame').src='https://yandex.ru/map-widget/v1/?text='+encoded+'&lang=ru_RU&scroll=false';
-  // Also pre-fill URL input with a search link
-  document.getElementById('mapUrlInput').value='https://yandex.ru/maps/?text='+encoded;
+  _mapCurrentSearch=q;
+  _mapPicked=null;
+  document.getElementById('mapPickedBar').style.display='none';
+  var encoded=encodeURIComponent(q);
+  document.getElementById('mapPickerFrame').src=
+    'https://yandex.ru/map-widget/v1/?text='+encoded+'&lang=ru_RU&scroll=true&mode=search';
+  // Через 1.2 сек показываем плашку + активируем оверлей для двойного клика
+  setTimeout(function(){
+    if(_mapCurrentSearch!==q) return;
+    var url='https://yandex.ru/maps/?text='+encoded;
+    _mapPicked={url:url,label:q,embedUrl:'https://yandex.ru/map-widget/v1/?text='+encoded+'&lang=ru_RU'};
+    showMapPickedBar(q);
+    // Показываем оверлей для двойного клика — он полупрозрачный и не мешает скроллу
+    var ov=document.getElementById('mapDblOverlay');
+    if(ov) ov.style.display='block';
+    // Обновляем подсказку
+    document.getElementById('mapHintBar').textContent='✌️ Двойной тап — прикрепить место';
+  },1200);
 }
 
-function confirmMapLocation(){
-  const url=document.getElementById('mapUrlInput').value.trim();
-  if(!url){toast('Вставь ссылку на место',true);return;}
-  S.locationUrl=url;
-  document.getElementById('locInput').value=url;
-  renderLocPreview(url);
-  closeMapPicker();
-  toast('Место прикреплено ✓');
+function showMapPickedBar(label){
+  var bar=document.getElementById('mapPickedBar');
+  var name=document.getElementById('mapPickedName');
+  name.textContent=label||'Место выбрано';
+  bar.style.display='flex';
 }
+
+function attachPickedLocation(){
+  if(!_mapPicked) return;
+  S.locationUrl=_mapPicked.url;
+  document.getElementById('locInput').value=_mapPicked.label||_mapPicked.url;
+  renderLocPreview(_mapPicked.url);
+  var ov=document.getElementById('mapDblOverlay');
+  if(ov) ov.style.display='none';
+  closeMapPicker();
+  toast('📍 Место прикреплено ✓');
+}
+
+// onMapDblClick — двойной клик по оверлею: если есть найденное место — прикрепить сразу
+function onMapDblClick(e){
+  if(_mapPicked){
+    attachPickedLocation();
+  } else if(_mapCurrentSearch){
+    var encoded=encodeURIComponent(_mapCurrentSearch);
+    var url='https://yandex.ru/maps/?text='+encoded;
+    _mapPicked={url:url,label:_mapCurrentSearch,embedUrl:'https://yandex.ru/map-widget/v1/?text='+encoded+'&lang=ru_RU'};
+    attachPickedLocation();
+  } else {
+    toast('Сначала найди место через поиск', true);
+  }
+}
+
+// Слушаем postMessage от Яндекс карты — они отправляют координаты при клике на объект
+window.addEventListener('message',function(ev){
+  if(!ev.data) return;
+  var d=typeof ev.data==='string'?tryParseJson(ev.data):ev.data;
+  if(!d) return;
+  // Яндекс Maps widget postMessage при выборе объекта
+  var lat=null,lng=null,label=null;
+  if(d.type==='mapClick'||d.type==='click'){
+    lat=d.lat||(d.coords&&d.coords[0]);
+    lng=d.lng||(d.coords&&d.coords[1]);
+  }
+  if(d.placemark||d.geoObject){
+    var obj=d.placemark||d.geoObject;
+    lat=obj.lat||obj.latitude;
+    lng=obj.lng||obj.longitude;
+    label=obj.name||obj.title||obj.description;
+  }
+  if(lat&&lng){
+    label=label||_mapCurrentSearch||(parseFloat(lat).toFixed(5)+', '+parseFloat(lng).toFixed(5));
+    var url='https://yandex.ru/maps/?ll='+lng+','+lat+'&z=15&pt='+lng+','+lat+',pm2rdm'+(label?'&text='+encodeURIComponent(label):'');
+    var embedUrl='https://yandex.ru/map-widget/v1/?ll='+lng+','+lat+'&z=15&lang=ru_RU&pt='+lng+','+lat+',pm2rdm';
+    _mapPicked={url:url,label:label,embedUrl:embedUrl,lat:lat,lng:lng};
+    showMapPickedBar(label);
+    // Двойной клик = прикрепить сразу
+    attachPickedLocation();
+  }
+});
+
+function tryParseJson(s){try{return JSON.parse(s);}catch(e){return null;}}
 
 // ═══ SAVE ═══
 async function saveDay(){
   const{m,d}=S.edit;
-  const note=document.getElementById('noteIn').value.trim();
+  const noteRaw=document.getElementById('noteIn').value.trim();
   const emoji=S.emoji;
   const btn=document.getElementById('btnSave');
   btn.disabled=true;btn.textContent='Сохраняю…';
   const key=m+'-'+d;
-  if(S.mood1||note||emoji||S.photoUrl||S.mood2||S.locationUrl){
+
+  // Собираем итоговую заметку: чистый текст + маркеры фото и локации
+  // Сначала убираем старые маркеры если они там были
+  let noteClean = noteRaw.replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').trim();
+  // Добавляем маркеры в конец
+  let noteWithMarkers = noteClean;
+  if(S.photoUrl) noteWithMarkers += (noteWithMarkers?'\n':'')+'📎 '+S.photoUrl;
+  if(S.locationUrl) noteWithMarkers += (noteWithMarkers?'\n':'')+'📍 '+S.locationUrl;
+
+  if(S.mood1||noteClean||emoji||S.photoUrl||S.mood2||S.locationUrl){
     if(!S.data[S.user])S.data[S.user]={};
-    S.data[S.user][key]={mood:S.mood1,note,emoji,split2:S.mood2,photoUrl:S.photoUrl||'',locationUrl:S.locationUrl||''};
+    // В локальном кеше храним note С маркерами — чтобы при перезагрузке всё читалось
+    S.data[S.user][key]={mood:S.mood1,note:noteWithMarkers,emoji,split2:S.mood2,photoUrl:S.photoUrl||'',locationUrl:S.locationUrl||''};
   }else{if(S.data[S.user])delete S.data[S.user][key];}
   localStorage.setItem('gvc',JSON.stringify(S.data));
   renderCurrent();
   setSyncing(true);
   try{
+    // На сервер отправляем note С маркерами — сервер хранит их в ячейке
     const res=await jsonp({action:'saveDay',pin:localStorage.getItem(PIN_KEY)||'',user:S.user,month:m,day:d,
-      mood:S.mood1||'',note:encodeURIComponent(note),
-      emoji:encodeURIComponent(emoji),split2:S.mood2||'',
-      locationUrl:encodeURIComponent(S.locationUrl||'')});
+      mood:S.mood1||'',note:encodeURIComponent(noteWithMarkers),
+      emoji:encodeURIComponent(emoji),split2:S.mood2||''});
     if(res&&res.error==='Unauthorized'){localStorage.removeItem(PIN_KEY);location.reload();return;}
     setSyncing(false);toast('Сохранено ✓');
   }catch(e){setSyncing(false,true);toast('Ошибка: '+e.message,true);}
@@ -1479,7 +1578,7 @@ function renderMonth(){
         const md2 = e&&e.split2 ? e.split2 : '';
         const em = e&&e.emoji ? e.emoji : '';
         const rawNote = e&&e.note ? e.note : '';
-        const noteText = rawNote.replace(/\n?📎 .+/g,'').trim();
+        const noteText = rawNote.replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').trim();
         const nt = noteText.length > 0;
         const hasPhoto = !!(e&&e.photoUrl) || rawNote.indexOf('📎') !== -1;
         const isToday = y===TODAY.y && m===TODAY.m && day===TODAY.d;
