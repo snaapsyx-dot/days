@@ -464,7 +464,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 </div>
 <div class="grid-area active" id="yearArea">
   <table class="ytable" id="grid"></table>
-  <div class="version-footer">версия 1.8.2</div>
+  <div class="version-footer">версия 1.8.3</div>
 </div>
 
 <div class="month-area" id="monthArea">
@@ -474,7 +474,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
     <button class="month-nav-btn" onclick="monthNav(1)">›</button>
   </div>
   <table class="mcal" id="mcal"></table>
-  <div class="version-footer">версия 1.8.2</div>
+  <div class="version-footer">версия 1.8.3</div>
 </div>
 
 <!-- SHEET (view + edit) -->
@@ -706,7 +706,7 @@ function pinSubmit(){
   }
 })();
 
-const API = 'https://script.google.com/macros/s/AKfycbzubNEFwNWpYtJQRuhvF6X7mL1b4o3dyu5b1f0rWf981Q-CW8-2GAaaZc3FboXhMdlO/exec';
+const API = 'https://script.google.com/macros/s/AKfycbwVs2l5b8Fv-Xkeimymq76hbk4KQA0JHwQ5sShj4r7xRj5VnKzZqmRoPYLoiT8fhpav/exec';
 
 const MOOD_COLORS = {awful:'#ff0000',bad:'#ff9900',normal:'#e6e600',good:'#00cc00',super:'#0000ff'};
 const MS  = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
@@ -986,7 +986,7 @@ function openCell(m,d){
   S.photoUrl=e.photoUrl||null; S.emoji=e.emoji||'';
   // Локация: сначала из отдельного поля, потом из note через маркер 📍
   var _rawNote=e.note||'';
-  var _locMatch=_rawNote.match(/\n?📍 (.+)/);
+  var _locMatch=_rawNote.match(/(?:^|\n)📍 ([^\n]+)/);
   S.locationUrl=e.locationUrl||((_locMatch&&_locMatch[1])||null);
   S.splitOpen=!!S.mood2;
 
@@ -1464,26 +1464,24 @@ async function saveDay(){
   btn.disabled=true;btn.textContent='Сохраняю…';
   const key=m+'-'+d;
 
-  // Собираем итоговую заметку: чистый текст + маркеры фото и локации
-  // Сначала убираем старые маркеры если они там были
+  // Чистим текст от старых маркеров (📎 добавляет сам сервер, 📍 добавляем мы)
   let noteClean = noteRaw.replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').trim();
-  // Добавляем маркеры в конец
-  let noteWithMarkers = noteClean;
-  if(S.photoUrl) noteWithMarkers += (noteWithMarkers?'\n':'')+'📎 '+S.photoUrl;
-  if(S.locationUrl) noteWithMarkers += (noteWithMarkers?'\n':'')+'📍 '+S.locationUrl;
+  // В note пишем ТОЛЬКО маркер 📍 для локации — 📎 сервер добавит сам через photoUrl
+  let noteToSave = noteClean;
+  if(S.locationUrl) noteToSave += (noteToSave?'\n':'')+'📍 '+S.locationUrl;
 
   if(S.mood1||noteClean||emoji||S.photoUrl||S.mood2||S.locationUrl){
     if(!S.data[S.user])S.data[S.user]={};
-    // В локальном кеше храним note С маркерами — чтобы при перезагрузке всё читалось
-    S.data[S.user][key]={mood:S.mood1,note:noteWithMarkers,emoji,split2:S.mood2,photoUrl:S.photoUrl||'',locationUrl:S.locationUrl||''};
+    // В локальном кеше note содержит только 📍 (без 📎 — его добавит сервер при getData)
+    S.data[S.user][key]={mood:S.mood1,note:noteToSave,emoji,split2:S.mood2,photoUrl:S.photoUrl||'',locationUrl:S.locationUrl||''};
   }else{if(S.data[S.user])delete S.data[S.user][key];}
   localStorage.setItem('gvc',JSON.stringify(S.data));
   renderCurrent();
   setSyncing(true);
   try{
-    // На сервер отправляем note С маркерами — сервер хранит их в ячейке
+    // На сервер: note с маркером 📍, photoUrl передаём отдельно (сервер сам вшьёт 📎)
     const res=await jsonp({action:'saveDay',pin:localStorage.getItem(PIN_KEY)||'',user:S.user,month:m,day:d,
-      mood:S.mood1||'',note:encodeURIComponent(noteWithMarkers),
+      mood:S.mood1||'',note:encodeURIComponent(noteToSave),
       emoji:encodeURIComponent(emoji),split2:S.mood2||''});
     if(res&&res.error==='Unauthorized'){localStorage.removeItem(PIN_KEY);location.reload();return;}
     setSyncing(false);toast('Сохранено ✓');
