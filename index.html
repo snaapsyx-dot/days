@@ -74,31 +74,44 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 .ytable th.corner{width:18px}
 .ytable td.dl{font-size:.56rem;color:var(--ink3);text-align:right;padding-right:3px;width:18px;vertical-align:middle}
 
-/* CIRCLES */
+/* CIRCLES — td.c это контейнер, .c-circ — сам кружок (overflow:hidden внутри) */
 .c{
   width:var(--cs)!important;min-width:var(--cs)!important;max-width:var(--cs)!important;
   height:var(--cs)!important;min-height:var(--cs)!important;max-height:var(--cs)!important;
-  border-radius:50%;background:rgba(26,20,16,.06);
+  background:transparent!important;border-radius:0!important;
   cursor:pointer;position:relative;vertical-align:middle;
-  transition:transform .12s;overflow:hidden;
+  transition:transform .12s;overflow:visible;
 }
 .c:hover{transform:scale(1.2);z-index:10}
-.c.na{background:transparent;pointer-events:none;cursor:default}
-.c[data-m=awful]{background:var(--awful)}
-.c[data-m=bad]{background:var(--bad)}
-.c[data-m=normal]{background:var(--normal)}
-.c[data-m=good]{background:var(--good)}
-.c[data-m=super]{background:var(--super)}
-.c.today{outline:2px solid var(--ink);outline-offset:1px}
-.c.merged{border-radius:calc(var(--cs)/2)}
+.c-circ{position:absolute;inset:0;border-radius:50%;background:rgba(26,20,16,.06);overflow:hidden}
+.c.na{pointer-events:none;cursor:default}
+.c.na .c-circ{background:transparent}
+.c[data-m=awful] .c-circ{background:var(--awful)}
+.c[data-m=bad] .c-circ{background:var(--bad)}
+.c[data-m=normal] .c-circ{background:var(--normal)}
+.c[data-m=good] .c-circ{background:var(--good)}
+.c[data-m=super] .c-circ{background:var(--super)}
+.c.today .c-circ{outline:2px solid var(--ink);outline-offset:1px}
+.c.merged .c-circ{border-radius:calc(var(--cs)/2)}
 .cem{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:calc(var(--cs)*0.62);line-height:1;pointer-events:none;z-index:2}
-.cpip{position:absolute;bottom:calc(var(--cs)*0.12);right:calc(var(--cs)*0.12);width:calc(var(--cs)*0.18);height:calc(var(--cs)*0.18);border-radius:50%;background:rgba(255,255,255,.5);z-index:2}
-.c[data-m=""]:not(.na) .cpip{background:rgba(26,20,16,.2)}
-.cpip.cpip-photo{background:rgba(255,255,255,.95)}
-.c[data-m=""]:not(.na) .cpip.cpip-photo{background:rgba(26,20,16,.65)}
-.c.split{background:none!important}
+/* Система точек: три уровня прозрачности */
+.cpip{position:absolute;bottom:calc(var(--cs)*0.12);right:calc(var(--cs)*0.12);width:calc(var(--cs)*0.18);height:calc(var(--cs)*0.18);border-radius:50%;background:rgba(255,255,255,.35);z-index:2}
+.cpip.cpip-media{background:rgba(255,255,255,.7)}
+.cpip.cpip-full{background:rgba(255,255,255,1)}
+/* Для пустых ячеек (без настроения) */
+.c[data-m=""]:not(.na) .cpip{background:rgba(26,20,16,.25)}
+.c[data-m=""]:not(.na) .cpip.cpip-media{background:rgba(26,20,16,.6)}
+.c[data-m=""]:not(.na) .cpip.cpip-full{background:rgba(26,20,16,.85)}
+/* Тёмная тема */
+[data-theme="dark"] .cpip{background:rgba(232,241,248,.4)}
+[data-theme="dark"] .cpip.cpip-media{background:rgba(232,241,248,.75)}
+[data-theme="dark"] .cpip.cpip-full{background:rgba(232,241,248,1)}
+[data-theme="dark"] .c[data-m=""]:not(.na) .cpip{background:rgba(232,241,248,.3)}
+[data-theme="dark"] .c[data-m=""]:not(.na) .cpip.cpip-media{background:rgba(232,241,248,.65)}
+[data-theme="dark"] .c[data-m=""]:not(.na) .cpip.cpip-full{background:rgba(232,241,248,.9)}
+.c.split .c-circ{background:none!important}
 .split-bg{position:absolute;inset:0;border-radius:inherit}
-[data-theme="dark"] .c:not([data-m]):not(.na){background:rgba(232,241,248,.1);border:1px solid rgba(232,241,248,.08)}
+[data-theme="dark"] .c:not([data-m]):not(.na) .c-circ{background:rgba(232,241,248,.1);border:1px solid rgba(232,241,248,.08)}
 
 /* OVERLAY */
 .overlay{position:fixed;inset:0;background:rgba(26,20,16,.3);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
@@ -228,6 +241,66 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 .pin-btn:active{background:rgba(26,20,16,.15)}
 .pin-error{font-size:.75rem;color:var(--awful);min-height:16px}
 
+/* SETTINGS BUTTON */
+.settings-btn{position:fixed;bottom:20px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--surface);border:1px solid var(--line2);font-size:1.2rem;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:150;box-shadow:0 2px 12px rgba(26,20,16,.12);transition:transform .15s,box-shadow .15s}
+.settings-btn:hover{transform:scale(1.08);box-shadow:0 4px 16px rgba(26,20,16,.18)}
+[data-theme="dark"] .settings-btn{box-shadow:0 2px 12px rgba(0,0,0,.3)}
+
+/* SETTINGS PANEL */
+.settings-overlay{position:fixed;inset:0;z-index:300;display:none}
+.settings-overlay.open{display:block}
+.settings-panel{position:fixed;bottom:74px;right:20px;width:260px;background:var(--surface);border:1px solid var(--line2);border-radius:14px;box-shadow:0 8px 32px rgba(26,20,16,.14);z-index:310;transform:scale(.95) translateY(8px);opacity:0;pointer-events:none;transition:transform .2s cubic-bezier(.32,0,.15,1),opacity .2s}
+.settings-panel.open{transform:scale(1) translateY(0);opacity:1;pointer-events:all}
+[data-theme="dark"] .settings-panel{box-shadow:0 8px 32px rgba(0,0,0,.35)}
+.settings-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px}
+.settings-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:400;font-style:italic;color:var(--ink)}
+.settings-body{padding:0 16px 14px;display:flex;flex-direction:column;gap:2px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line)}
+.settings-label{font-size:.78rem;color:var(--ink2)}
+.settings-toggle{font-size:.7rem;padding:3px 10px;border-radius:6px;background:rgba(26,20,16,.07);color:var(--ink2);cursor:pointer;border:none;font-family:inherit;transition:all .15s;white-space:nowrap}
+.settings-toggle.on{background:var(--ink);color:#fff}
+[data-theme="dark"] .settings-toggle{background:rgba(232,241,248,.1);color:var(--ink2)}
+[data-theme="dark"] .settings-toggle.on{background:var(--ink);color:var(--bg)}
+
+/* WEEKENDS */
+/* Годовая таблица: кружки (ring) вместо прямоугольного фона */
+td.c.weekend:not(.na){background:transparent!important;border-radius:0!important}
+td.c.weekend:not(.na) .c-circ{box-shadow:0 0 0 1.5px rgba(26,20,16,.32)!important}
+[data-theme="dark"] td.c.weekend:not(.na){background:transparent!important}
+[data-theme="dark"] td.c.weekend:not(.na) .c-circ{box-shadow:0 0 0 1.5px rgba(232,241,248,.38)!important}
+/* Месячный вид — оставляем выделение по умолчанию */
+.mcal td.mday.weekend:not(.empty){background:rgba(26,20,16,.09)}
+[data-theme="dark"] .mcal td.mday.weekend:not(.empty){background:rgba(232,241,248,.12)}
+.mcal td.mday.weekend .mday-num{color:var(--ink)}
+
+/* OFF DAYS MANAGER */
+.offcal-nav{display:flex;align-items:center;gap:10px;margin-bottom:10px;justify-content:center}
+.offcal-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:300;font-style:italic;min-width:140px;text-align:center;color:var(--ink)}
+.offcal{border-collapse:separate;border-spacing:2px;width:100%;margin-bottom:4px}
+.offcal th{font-size:.6rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);padding-bottom:4px;text-align:center}
+.offcal td.ocday{border-radius:8px;background:rgba(26,20,16,.04);cursor:pointer;text-align:center;padding:7px 4px;font-size:.78rem;font-weight:500;color:var(--ink2);transition:background .12s;user-select:none}
+.offcal td.ocday:hover{background:rgba(26,20,16,.1)}
+.offcal td.ocday.selected{background:var(--ink)!important;color:#fff!important}
+.offcal td.ocday.wknd{color:var(--ink3)}
+.offcal td.ocday.today-d{outline:1.5px solid var(--ink2);outline-offset:-2px}
+.offcal td.empty-d{padding:7px 4px}
+[data-theme="dark"] .offcal td.ocday{background:rgba(232,241,248,.06);color:var(--ink2)}
+[data-theme="dark"] .offcal td.ocday:hover{background:rgba(232,241,248,.14)}
+[data-theme="dark"] .offcal td.ocday.selected{background:var(--ink)!important;color:var(--bg)!important}
+.offdays-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:9px;background:rgba(26,20,16,.04);border:1px solid var(--line);margin-bottom:6px}
+[data-theme="dark"] .offdays-item{background:rgba(232,241,248,.05);border-color:var(--line2)}
+.offdays-item-date{flex:1;font-size:.78rem;color:var(--ink)}
+.offdays-item-del{font-size:.75rem;color:var(--ink3);padding:2px 6px;border-radius:5px;cursor:pointer;transition:background .12s;border:none;background:none;font-family:inherit}
+.offdays-item-del:hover{background:rgba(255,50,50,.12);color:#ff4444}
+.offdays-empty{font-size:.75rem;color:var(--ink3);font-style:italic;padding:4px 0}
+
+/* year-grid emoji indicators — справа от кружка */
+.cyinds{position:absolute;left:calc(100% + 2px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:0;font-size:calc(var(--cs)*0.32);line-height:1.2;pointer-events:none;z-index:3;white-space:nowrap}
+.pip-tabs{display:flex;gap:2px;background:rgba(26,20,16,.06);border-radius:7px;padding:2px}
+.pip-tab{padding:3px 10px;border-radius:5px;font-size:.7rem;font-weight:400;color:var(--ink2);transition:all .15s;white-space:nowrap;cursor:pointer;border:none;background:none;font-family:inherit}
+.pip-tab.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(26,20,16,.1);font-weight:500}
+[data-theme="dark"] .pip-tabs{background:rgba(232,241,248,.08)}
+
 /* TOAST */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--ink);color:#fff;padding:7px 14px;border-radius:7px;font-size:.72rem;opacity:0;pointer-events:none;transition:all .2s;z-index:600;white-space:nowrap;max-width:90vw}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -249,18 +322,22 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 [data-theme="dark"] .month-nav-btn:hover{background:rgba(232,241,248,.18)}
 .month-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;color:var(--ink);text-align:center;min-width:200px}
 .month-title em{font-style:italic}
+.mdeco-wrap{display:inline-flex;align-items:center;gap:7px;flex-wrap:nowrap}
+.mdeco{display:inline-block;font-size:1.1rem;line-height:1;animation:mdFloat 2.8s ease-in-out infinite;will-change:transform}
+@keyframes mdFloat{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-5px) rotate(4deg)}66%{transform:translateY(-2px) rotate(-3deg)}}
 .mcal{border-collapse:separate;border-spacing:3px;width:100%;max-width:700px}
 .mcal th{font-size:.58rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);padding-bottom:6px;text-align:center}
 .mcal th.wnum-h{font-size:.56rem;color:var(--ink3);width:22px;text-align:right;padding-right:4px}
 .mcal td.wnum{font-size:.56rem;color:var(--ink3);text-align:right;padding-right:4px;vertical-align:top;padding-top:6px}
-.mcal td.mday{border-radius:10px;background:rgba(26,20,16,.04);cursor:pointer;position:relative;transition:background .12s;vertical-align:top;min-height:64px;padding:6px 8px 8px}
+.mcal td.mday{border-radius:10px;background:rgba(26,20,16,.04);cursor:pointer;position:relative;transition:background .12s;vertical-align:top;min-height:calc(var(--cs) * 2.3);padding:6px 8px 8px}
 .mcal td.mday:hover{background:rgba(26,20,16,.09)}
 .mcal td.mday.today-cell{outline:2px solid var(--ink);outline-offset:-2px;border-radius:10px}
 .mcal td.mday.empty{background:transparent;cursor:default;pointer-events:none}
 .mcal td.mday.empty:hover{background:transparent}
-.mday-num{font-size:.78rem;font-weight:500;color:var(--ink2);line-height:1;margin-bottom:5px}
+.mday-num{font-size:.78rem;font-weight:500;color:var(--ink2);line-height:1;margin-bottom:5px;display:flex;align-items:center;gap:3px}
+.mday-indicators{display:flex;gap:1px;font-size:.6rem;line-height:1}
 .mday-today .mday-num{color:var(--ink);font-weight:700}
-.mday-circle{width:28px;height:28px;border-radius:50%;margin:0 auto 4px;position:relative;overflow:hidden}
+.mday-circle{width:var(--cs);height:var(--cs);border-radius:50%;margin:0 auto 4px;position:relative;overflow:hidden}
 .mday-circle.split{background:none}
 .mday-circle .split-bg{position:absolute;inset:0;border-radius:50%}
 .mday-cem{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;z-index:2}
@@ -272,8 +349,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 @media(max-width:640px){
   .month-area{padding:10px 8px 20px}
   .mcal{border-spacing:2px}
-  .mcal td.mday{min-height:52px;padding:4px 5px 5px}
-  .mday-circle{width:22px;height:22px}
+  .mcal td.mday{padding:4px 5px 5px}
   .mday-note{display:none}
   .month-title{font-size:1.25rem}
 }
@@ -311,10 +387,21 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 .map-search-input::placeholder{color:var(--ink3)}
 .btn-map-search{background:var(--ink);color:var(--bg);border-radius:8px;padding:8px 14px;font-size:.78rem;font-weight:500;transition:opacity .15s;flex-shrink:0}
 .btn-map-search:hover{opacity:.85}
+.map-results{max-height:40vh;overflow-y:auto;border-bottom:1px solid var(--line);flex-shrink:0}
+.map-result-item{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;transition:background .12s;border-bottom:1px solid var(--line)}
+.map-result-item:last-child{border-bottom:none}
+.map-result-item:hover{background:rgba(26,20,16,.06)}
+.map-result-item.selected{background:rgba(26,20,16,.09)}
+[data-theme="dark"] .map-result-item:hover{background:rgba(232,241,248,.08)}
+[data-theme="dark"] .map-result-item.selected{background:rgba(232,241,248,.12)}
+.map-result-icon{font-size:1.1rem;flex-shrink:0}
+.map-result-text{flex:1;min-width:0}
+.map-result-name{font-size:.83rem;font-weight:500;color:var(--ink)}
+.map-result-type{font-size:.68rem;color:var(--ink2);margin-top:2px}
+.map-result-loading{padding:20px;text-align:center;font-size:.75rem;color:var(--ink2);display:flex;align-items:center;justify-content:center;gap:8px}
 .map-hint-bar{padding:7px 16px;font-size:.68rem;color:var(--ink2);background:rgba(26,20,16,.04);border-bottom:1px solid var(--line);flex-shrink:0;text-align:center}
 .map-frame-wrap{flex:1;position:relative;overflow:hidden}
 .map-frame-wrap iframe{width:100%;height:100%;border:none;display:block}
-
 .map-picked-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--line);flex-shrink:0;background:var(--surface)}
 .map-picked-icon{font-size:1.1rem;flex-shrink:0}
 .map-picked-name{flex:1;font-size:.78rem;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -334,6 +421,46 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 .card-location-frame{width:100%;height:160px;border:none;border-radius:10px;display:block;margin-bottom:8px}
 .card-location-link{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;color:var(--super);text-decoration:none}
 .card-location-link:hover{text-decoration:underline}
+.card-location-type{font-size:.68rem;color:var(--ink2);margin-top:1px}
+.card-location-map{width:100%;height:200px;border:none;border-radius:10px;display:block}
+.card-location-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.card-location-item{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:9px;background:rgba(26,20,16,.04);border:1px solid var(--line);text-decoration:none;transition:background .12s}
+.card-location-item:hover{background:rgba(26,20,16,.09)}
+[data-theme="dark"] .card-location-item{background:rgba(232,241,248,.05);border-color:var(--line2)}
+[data-theme="dark"] .card-location-item:hover{background:rgba(232,241,248,.11)}
+.card-location-pin{font-size:1rem;flex-shrink:0;line-height:1.4}
+.card-location-text{flex:1;min-width:0}
+.card-location-name{font-size:.78rem;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-location-type-lbl{font-size:.65rem;color:var(--ink2);margin-top:1px}
+
+/* customday — то же оформление что у weekend */
+td.c.customday:not(.na){background:transparent!important;border-radius:0!important}
+td.c.customday:not(.na) .c-circ{box-shadow:0 0 0 1.5px rgba(26,20,16,.32)!important}
+[data-theme="dark"] td.c.customday:not(.na) .c-circ{box-shadow:0 0 0 1.5px rgba(232,241,248,.38)!important}
+.mcal td.mday.customday:not(.empty){background:rgba(26,20,16,.09)}
+[data-theme="dark"] .mcal td.mday.customday:not(.empty){background:rgba(232,241,248,.12)}
+
+/* map-attach-bar */
+.map-attach-bar{padding:10px 16px 14px;border-top:1px solid var(--line);background:var(--surface);flex-shrink:0;display:none;flex-direction:column;gap:8px}
+.map-attach-bar.open{display:flex}
+.map-attach-selected{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;background:rgba(26,20,16,.05);border:1px solid var(--line2)}
+[data-theme="dark"] .map-attach-selected{background:rgba(232,241,248,.07);border-color:var(--line2)}
+.map-attach-sel-icon{font-size:1rem;flex-shrink:0}
+.map-attach-sel-text{flex:1;min-width:0}
+.map-attach-sel-name{font-size:.8rem;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.map-attach-sel-type{font-size:.67rem;color:var(--ink2);margin-top:1px}
+
+/* loc-zone multi */
+.loc-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.loc-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:9px;background:rgba(26,20,16,.05);border:1px solid var(--line)}
+[data-theme="dark"] .loc-item{background:rgba(232,241,248,.06);border-color:var(--line2)}
+.loc-item-text{flex:1;min-width:0}
+.loc-item-name{font-size:.78rem;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.loc-item-type{font-size:.65rem;color:var(--ink2);margin-top:1px}
+.loc-item-del{font-size:.75rem;color:var(--ink3);padding:2px 6px;border-radius:5px;cursor:pointer;flex-shrink:0;transition:background .12s;line-height:1}
+.loc-item-del:hover{background:rgba(255,50,50,.12);color:#ff4444}
+.btn-add-loc{width:100%;padding:8px;border-radius:9px;border:1.5px dashed var(--line2);font-size:.78rem;color:var(--ink2);background:none;cursor:pointer;transition:background .12s;font-family:inherit}
+.btn-add-loc:hover{background:rgba(26,20,16,.06)}
 
 /* VERSION FOOTER */
 .version-footer{text-align:center;padding:20px 0 28px;font-size:.65rem;letter-spacing:.08em;color:rgba(26,20,16,.4);user-select:none;width:100%;/* ★ ВЕРСИЯ: +0.1 за каждое обновление сайта ★ */}
@@ -449,9 +576,6 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
     <button class="vtab on" id="vtabYear" onclick="switchView('year')">Год</button>
     <button class="vtab" id="vtabMonth" onclick="switchView('month')">Месяц</button>
   </div>
-  <div class="theme-toggle" onclick="toggleTheme()" title="Тема">
-    <div class="toggle-track"><div class="toggle-thumb"></div></div>
-  </div>
 </header>
 
 <div class="legend">
@@ -464,7 +588,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
 </div>
 <div class="grid-area active" id="yearArea">
   <table class="ytable" id="grid"></table>
-  <div class="version-footer">версия 1.8.3</div>
+  <div class="version-footer">версия 1.14.0</div>
 </div>
 
 <div class="month-area" id="monthArea">
@@ -474,7 +598,7 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
     <button class="month-nav-btn" onclick="monthNav(1)">›</button>
   </div>
   <table class="mcal" id="mcal"></table>
-  <div class="version-footer">версия 1.8.3</div>
+  <div class="version-footer">версия 1.14.0</div>
 </div>
 
 <!-- SHEET (view + edit) -->
@@ -494,7 +618,10 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
             <div class="card-date" id="cardDate">—</div>
             <div class="card-sub" id="cardSub">—</div>
           </div>
-          <div class="card-emoji" id="cardEmoji"></div>
+          <div style="display:flex;align-items:flex-start;gap:8px;flex-shrink:0">
+            <div class="card-emoji" id="cardEmoji"></div>
+            <button class="sh-x" onclick="closeSheet()">✕</button>
+          </div>
         </div>
         <div class="card-moods" id="cardMoods"></div>
         <div id="cardNoteWrap"></div>
@@ -505,7 +632,6 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
           <button class="btn-photo-del" id="cardPhotoDel" style="display:none" onclick="deletePhoto()">🗑</button>
         </div>
       </div>
-      <button class="sh-x" style="position:absolute;top:20px;right:20px" onclick="closeSheet()">✕</button>
     </div>
 
     <!-- ── EDIT FORM ── -->
@@ -584,20 +710,10 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
       </div>
 
       <!-- МЕСТОПОЛОЖЕНИЕ -->
-      <div class="slbl">Место на карте</div>
+      <div class="slbl">Места на карте</div>
       <div class="loc-zone">
-        <div class="loc-header">
-          <span class="loc-label">📍 Яндекс Карты</span>
-          <span class="loc-clear" id="locClear" onclick="clearLocation()">✕ убрать</span>
-        </div>
-        <div class="loc-input-row">
-          <input type="text" class="loc-input" id="locInput" placeholder="Вставь ссылку или найди место…" oninput="onLocInput()">
-          <button class="btn-loc-map" onclick="openMapPicker()">🗺 Карта</button>
-        </div>
-        <div class="loc-preview" id="locPreview">
-          <iframe id="locFrame" src="" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
-          <a class="loc-preview-link" id="locLink" href="#" target="_blank">↗ Открыть в Яндекс Картах</a>
-        </div>
+        <div id="locList" class="loc-list"></div>
+        <button class="btn-add-loc" onclick="openMapPicker()">📍 Добавить место</button>
       </div>
 
       <div class="srow">
@@ -629,6 +745,8 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
     <input type="text" class="map-search-input" id="mapSearchInput" placeholder="Поиск: кафе, улица, город…" onkeydown="if(event.key==='Enter')doMapSearch()">
     <button class="btn-map-search" onclick="doMapSearch()">Найти</button>
   </div>
+  <!-- Список результатов поиска -->
+  <div class="map-results" id="mapResults" style="display:none"></div>
   <div class="map-hint-bar" id="mapHintBar">🔍 Найди место через поиск выше</div>
   <div class="map-frame-wrap" id="mapFrameWrap">
     <iframe id="mapPickerFrame" src="about:blank" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
@@ -639,6 +757,66 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--lin
     <span class="map-picked-icon">📍</span>
     <span class="map-picked-name" id="mapPickedName">Место выбрано</span>
     <button class="btn-map-attach" onclick="attachPickedLocation()">Прикрепить ✓</button>
+  </div>
+</div>
+
+<!-- OFF DAYS MANAGER -->
+<div class="overlay" id="offDaysOv" onclick="offDaysBgClose(event)">
+  <div class="sheet">
+    <div class="drag"></div>
+    <div class="sh-head">
+      <div>
+        <div class="sh-ttl">Мои <em>выходные</em></div>
+        <div class="sh-sub" id="offDaysUserLabel"></div>
+      </div>
+      <button class="sh-x" onclick="closeOffDaysManager()">✕</button>
+    </div>
+    <div class="sh-body">
+      <div class="slbl" style="margin-bottom:10px">Выбери дни в календаре</div>
+      <div class="offcal-nav">
+        <button class="month-nav-btn" onclick="offCalNav(-1)">‹</button>
+        <div class="offcal-title" id="offCalTitle"></div>
+        <button class="month-nav-btn" onclick="offCalNav(1)">›</button>
+      </div>
+      <table class="offcal" id="offCal"></table>
+      <div class="slbl" style="margin-top:16px;margin-bottom:10px">Добавленные дни</div>
+      <div id="offDaysList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS BUTTON -->
+<button class="settings-btn" onclick="openSettings()" title="Настройки">⚙️</button>
+
+<!-- SETTINGS MODAL -->
+<div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-head">
+    <div class="settings-title">Настройки</div>
+    <button class="sh-x" onclick="closeSettings()">✕</button>
+  </div>
+  <div class="settings-body">
+    <div class="settings-row">
+      <span class="settings-label">Тёмная тема</span>
+      <div class="theme-toggle" onclick="toggleTheme()" title="Тема">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Вид пометок</span>
+      <div class="pip-tabs" id="pipTabs">
+        <button class="pip-tab on" id="pipTabDot" onclick="setPipMode('dot')">Точка</button>
+        <button class="pip-tab" id="pipTabEmoji" onclick="setPipMode('emoji')">Эмодзи</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Выходные и праздники</span>
+      <button class="settings-toggle" id="wkndToggle" onclick="toggleWeekends()">Выкл</button>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Добавить выходные</span>
+      <button class="settings-toggle" onclick="openOffDaysManager()">Изменить</button>
+    </div>
   </div>
 </div>
 
@@ -658,6 +836,7 @@ var S = {
   data:{snaapsy:{}, winnieshe4k0:{}, merged:[]},
   edit:null, mood1:null, mood2:null, photoUrl:null, emoji:'', locationUrl:null,
   splitOpen:false, _uploading:false,
+  view:'year', pipMode:'dot', showWeekends:false,
 };
 
 function pinPress(d){
@@ -709,6 +888,21 @@ function pinSubmit(){
 const API = 'https://script.google.com/macros/s/AKfycbwVs2l5b8Fv-Xkeimymq76hbk4KQA0JHwQ5sShj4r7xRj5VnKzZqmRoPYLoiT8fhpav/exec';
 
 const MOOD_COLORS = {awful:'#ff0000',bad:'#ff9900',normal:'#e6e600',good:'#00cc00',super:'#0000ff'};
+// Декорации для каждого месяца: [левые иконки, правые иконки]
+const MONTH_DECOS=[
+  [['❄️','✨'],['☃️','🌨']],   // Январь
+  [['❤️','💌'],['🌹','💝']],   // Февраль
+  [['🌸','🌱'],['☀️','🦋']],   // Март
+  [['🌷','🌧️'],['🌈','💧']],  // Апрель
+  [['🌺','🐝'],['🌿','🦋']],   // Май
+  [['☀️','🌊'],['🌻','🌴']],   // Июнь
+  [['🏖️','🍦'],['🌈','🌞']],  // Июль
+  [['🌾','🍉'],['☀️','🌻']],   // Август
+  [['🍂','🍁'],['🌰','🍄']],   // Сентябрь
+  [['🎃','🍂'],['🌙','🕸️']],  // Октябрь
+  [['🌧️','🕯️'],['🍂','☁️']],  // Ноябрь
+  [['⭐','🎄'],['❄️','🎁']],   // Декабрь
+];
 const MS  = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
 const MG  = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const DW  = ['вс','пн','вт','ср','чт','пт','сб'];
@@ -717,31 +911,62 @@ const NOW   = new Date();
 const TODAY = {y:NOW.getFullYear(), m:NOW.getMonth(), d:NOW.getDate()};
 
 const EMOJI_GROUPS = [
-  {name:'Лица', items:['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','🥰','😘','😗','😙','😚','🙂','🤗','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','☹️','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧','😇','🥳','🥸','🤠','🤡','🤥','🤫','🤭','🧐','😈','👿','👹','👺','💀','☠️','👻','👽','🤖','💩','😺','😸','😹','😻','😼','😽','🙀','😿','😾']},
-  {name:'Жесты и тело', items:['👋','🤚','🖐','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👍','👎','✊','👊','🤛','🤜','👏','🙌','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦵','🦶','👂','🦻','👃','👀','👁','👅','👄','🫀','🫁','🧠','🦷','🦴']},
-  {name:'Сердца', items:['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','❤️‍🔥','❤️‍🩹']},
-  {name:'Праздник', items:['🎉','🎊','🎈','🎁','🎀','🎗','🎟','🎫','🎖','🏆','🥇','🥈','🥉','🏅','🎪','🎭','🎨','🎬','🎤','🎧','🎼','🎵','🎶','🎹','🥁','🪘','🎷','🎺','🎸','🪕','🎻','🎲','♟','🎯','🎳','🎮','🎰','🧩','🪄','🎠','🎡','🎢','🎪']},
-  {name:'Природа', items:['🌸','🌺','🌻','🌹','🌷','🌼','💐','🍀','🌿','🍃','🍂','🍁','🍄','🌾','💧','🌊','🌈','⭐','🌟','💫','✨','🌙','☀️','🌤','⛅','🌧','⛈','🌩','❄️','⛄','🌬','🌀','🌂','🌍','🌏','🌎','🏔','🌋','🗻','🏕','🌅','🌄','🌠','🌌','🌁']},
-  {name:'Еда', items:['🍎','🍊','🍋','🍇','🍓','🫐','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🥑','🍆','🌽','🌶','🍞','🥐','🍳','🥞','🧇','🥓','🍗','🍖','🌭','🍔','🍟','🍕','🌮','🌯','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🍤','🍙','🍚','🍘','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','☕','🍵','🧃','🥤','🧋','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧉','🍾']},
-  {name:'Животные', items:['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷','🦂','🐢','🐍','🦎','🦕','🦖','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🦣','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🦬','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐈','🐓','🦃','🦚','🦜','🦢','🦩','🕊','🐇','🦝','🦨','🦡','🦫','🦦','🦥','🐁','🐀','🐿','🦔','🦧']},
-  {name:'Транспорт', items:['🚗','🚕','🚙','🚌','🚎','🏎','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🏍','🛵','🚲','🛴','🛹','✈️','🛩','🚀','🛸','🚁','⛵','🚤','🛳','🚢','⚓','🚂','🚃','🚄','🚅','🚆','🚇','🚈','🚉','🚊','🚝','🚞','🚋','🚌','🚍','🚎']},
-  {name:'Разное', items:['💪','🧠','💡','🔦','💰','💵','💳','🪙','📱','💻','🖥','📷','📸','📹','🎥','📞','☎️','📺','📻','🧭','⏰','⌛','📡','🔋','🔌','🔭','🔬','🩺','💊','💉','🧬','🪝','🧰','🚪','🛏','🛋','🧴','🧹','🧺','🧼','🛒','📚','📖','📝','✏️','🖊','🖋','📌','📍','📎','🔑','🗝','🔐','🔒','🔓','❤️','⭐','🌟','💥','🎯','🏆','🥇','💯','✅','❌','⚡','🔥','💧','🌊','🎵','🎶','🎸','🎹','🥁','🎻','🎺','🎷','🪕','🎤','🎧','🎬','📸','🏖️','🏝','🏕','⛺','🌅','🌄','🌠','🎑','🎆','🎇']}
+  {name:'Лица', items:['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','🥰','😘','😗','😙','😚','🙂','🤗','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','☹️','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧','😇','🥳','🥸','🤠','🤡','🤥','🤫','🤭','🧐','😈','👿','👹','👺','💀','☠️','👻','👽','🤖','💩','😺','😸','😹','😻','😼','😽','🙀','😿','😾','🫠','🫡','🫢','🫣','🫤','🫥','🫨']},
+  {name:'Жесты и тело', items:['👋','🤚','🖐','✋','🖖','🫱','🫲','🫳','🫴','🫵','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','🫵','👍','👎','✊','👊','🤛','🤜','👏','🙌','🫶','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🫀','🫁','🧠','🦷','🦴','👀','👁','👅','👄','🫦']},
+  {name:'Люди', items:['👶','🧒','👦','👧','🧑','👱','👨','🧔','👩','🧓','👴','👵','🙍','🙎','🙅','🙆','💁','🙋','🧏','🙇','🤦','🤷','👮','🕵️','💂','🧑‍⚕️','👨‍⚕️','👩‍⚕️','🧑‍🌾','👨‍🌾','👩‍🌾','🧑‍🍳','👨‍🍳','👩‍🍳','🧑‍🎓','👨‍🎓','👩‍🎓','🧑‍🎤','👨‍🎤','👩‍🎤','🧑‍🏫','👨‍🏫','👩‍🏫','🧑‍🏭','👨‍🏭','👩‍🏭','🧑‍💻','👨‍💻','👩‍💻','🧑‍💼','👨‍💼','👩‍💼','🧑‍🔧','👨‍🔧','👩‍🔧','🧑‍🔬','👨‍🔬','👩‍🔬','🧑‍🎨','👨‍🎨','👩‍🎨','🧑‍✈️','👨‍✈️','👩‍✈️','🧑‍🚀','👨‍🚀','👩‍🚀','🧑‍🚒','👨‍🚒','👩‍🚒','👰','🤵','🫅','🤴','👸','🦸','🦹','🧙','🧚','🧛','🧜','🧝','🧞','🧟','🧌','💆','💇','🚶','🧍','🧎','🏃','💃','🕺','🕴','👯','🧖','🧗','🏇','⛷️','🏂','🏌️','🏄','🚣','🧘','🏊','🤽','🚴','🏋️','🤸','🤼','🤺','🤾','🏹','⛹️','🧘']},
+  {name:'Сердца', items:['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','❤️‍🔥','❤️‍🩹','🩷','🩵','🩶']},
+  {name:'Праздник', items:['🎉','🎊','🎈','🎁','🎀','🎗','🎟','🎫','🎖','🏆','🥇','🥈','🥉','🏅','🎪','🎭','🎨','🖼','🎬','🎤','🎧','🎼','🎵','🎶','🪗','🎹','🥁','🪘','🎷','🎺','🎸','🪕','🎻','🪈','🎲','♟','🎯','🎳','🎮','🕹','🎰','🧩','🪀','🪁','🪃','🏏','🏑','🏒','🥍','🏓','🏸','🥊','🥋','🎽','🛹','🛷','⛸️','🪂','🛼','🩰','🩱','🩲','🤿','🎣','🥅','⛳','🎪','🪄','🎠','🎡','🎢','🎆','🎇','🧨','✨','🎑','🎐','🎋','🎍','🪅','🪆']},
+  {name:'Активности', items:['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷','⛸️','🤺','🏇','⛷️','🏂','🪂','🏋️','🤸','🤼','🤾','⛹️','🏌️','🏄','🚣','🧗','🚵','🚴','🏊','🤽','🧘','🧗','🤾','🤺','🏹','🎯','🎳','🏆','🥇','🎖','🏅']},
+  {name:'Природа', items:['🌸','🌺','🌻','🌹','🌷','🌼','💐','🪷','🌱','🌿','☘️','🍀','🎋','🎍','🪴','🍃','🍂','🍁','🍄','🌾','💐','🌵','🎄','🌲','🌳','🌴','🪵','🪨','🌊','💧','💦','🫧','🌍','🌏','🌎','🏔','⛰','🌋','🗻','🏕','🏖','🏜','🏝','🏞','🌅','🌄','🌠','🌌','🌁','🌃','🏙','🌉','🌆','🌇','🌉','🗼','🗽','🎠','🎡','🎢','💈','⛲','🎑']},
+  {name:'Погода', items:['☀️','🌤','⛅','🌥','☁️','🌦','🌧','⛈','🌩','🌨','❄️','☃️','⛄','🌬','💨','🌪','🌫','🌈','⚡','💧','🌊','☔','⛱','🌂','🌡','🌂','🔥','💥','🌀']},
+  {name:'Еда', items:['🍎','🍏','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🫒','🍆','🥑','🫑','🥦','🥬','🥒','🌽','🌶','🫑','🧄','🧅','🥔','🍠','🧆','🥚','🍳','🫕','🥞','🧇','🥓','🥩','🍗','🍖','🌭','🍔','🍟','🍕','🫓','🥙','🥗','🫔','🌮','🌯','🧆','🥘','🫕','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍚','🍘','🍥','🥮','🍡','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🍯','🧀','🍞','🥐','🥖','🫔','🥨','🥯','☕','🫖','🍵','🧃','🥤','🧋','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧉','🍾','🧊']},
+  {name:'Животные', items:['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐻‍❄️','🐨','🐯','🦁','🐮','🐷','🐽','🐸','🐵','🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🐣','🐥','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🪱','🐛','🦋','🐌','🐞','🐜','🪲','🦟','🦗','🪰','🕷','🦂','🐢','🐍','🦎','🪳','🦕','🦖','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🦭','🐊','🐅','🐆','🦓','🦍','🦧','🦣','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🦬','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🦬','🐕','🐩','🦮','🐕‍🦺','🐈','🐈‍⬛','🐓','🦃','🦤','🦚','🦜','🦢','🦩','🕊','🐇','🦝','🦨','🦡','🦫','🦦','🦥','🐁','🐀','🐿','🦔']},
+  {name:'Транспорт', items:['🚗','🚕','🚙','🛻','🚌','🚎','🏎','🚓','🚑','🚒','🚐','🚚','🚛','🚜','🏍','🛵','🛺','🚲','🛴','🛹','🛼','🚏','🛣','🛤','⛽','🚧','⚓','⛵','🛶','🚤','🛳','🛥','🚢','✈️','🛩','🛫','🛬','🪂','💺','🚁','🚟','🚠','🚡','🛰','🚀','🛸','🚂','🚃','🚄','🚅','🚆','🚇','🚈','🚉','🚊','🚝','🚞','🚋','🚌','🚍','🚎','🏎','🚐','🚑','🚒','🛻','🚓','🚔','🚕','🚖','🚗','🚘','🚙','🛺']},
+  {name:'Места', items:['🏠','🏡','🏢','🏣','🏤','🏥','🏦','🏨','🏩','🏪','🏫','🏬','🏭','🏯','🏰','💒','🗼','🗽','⛪','🕌','🛕','🕍','⛩','🕋','⛲','⛺','🌁','🌃','🏙','🌄','🌅','🌆','🌇','🌉','🌌','🌠','🎆','🎇','🗺','🌐','🧭','🏔','⛰','🌋','🗻','🏕','🏖','🏜','🏝','🏞','🗾']},
+  {name:'Предметы', items:['⌚','📱','💻','⌨️','🖥','🖨','🖱','🖲','💽','💾','💿','📀','🎥','📽','🎞','📞','☎️','📟','📠','📺','📻','🧭','⏱','⏲','⏰','🕰','⌛','⏳','📡','🔋','🔌','💡','🔦','🕯','🪔','🧯','🛢','💰','💴','💵','💶','💷','💸','💳','🧾','⚖️','🦯','🔧','🪛','🔩','⚙️','🗜','⚒️','🛠','⛏','⛓','🪝','🔑','🗝','🔐','🔒','🔓','🚪','🪞','🪟','🛋','🪑','🚽','🪠','🚿','🛁','🪤','🧴','🧷','🧹','🧺','🧻','🪣','🧼','🫧','🪥','🧽','🧯','🛒','🧲','🔭','🔬','🩺','💊','💉','🩹','🩼','🩻','🩺','🏮','🪬','🧿','💈','⚗️','🔭','🩸']},
+  {name:'Одежда', items:['👓','🕶','🥽','🦺','👔','👕','👖','🧣','🧤','🧥','🧦','👗','👘','🥻','🩱','🩲','🩳','👙','👚','👛','👜','👝','🎒','🧳','👒','🎩','🧢','⛑','📿','💄','💍','💎','👑','💼','🥿','👞','👟','🥾','👠','👡','👢','🩰','👒','🎓']},
+  {name:'Символы', items:['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','⭐','🌟','💫','✨','💥','❄️','🔥','💧','💦','🌊','⚡','✅','❌','❎','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔶','🔷','🔸','🔹','🔺','🔻','💠','🔘','🔲','🔳','▪️','▫️','◾','◽','◼️','◻️','🔰','🔱','⚜️','🏁','🚩','🎌','🏴','🏳️','🏴‍☠️','♻️','⚠️','☢️','☣️','⛔','🚫','🚳','🚭','🚯','🚱','🚷','📵','🔞','💯','🔃','🔄','🔙','🔚','🔛','🔜','🔝','🆗','🆕','🆙','🆒','🆓','🆖','🆘','⛽','💤','🔔','🔕','📣','📢','💬','💭','🗯','♠️','♥️','♦️','♣️','♟','🃏','🀄','🎴','🎭','🎨','🖼']},
+  {name:'Флаги', items:['🏁','🚩','🎌','🏴','🏳️','🏴‍☠️','🏳️‍🌈','🏳️‍⚧️','🇷🇺','🇺🇸','🇬🇧','🇩🇪','🇫🇷','🇮🇹','🇪🇸','🇯🇵','🇨🇳','🇰🇷','🇧🇷','🇮🇳','🇨🇦','🇦🇺','🇲🇽','🇦🇷','🇸🇪','🇳🇴','🇩🇰','🇫🇮','🇵🇱','🇨🇿','🇺🇦','🇧🇾','🇰🇿','🇺🇿','🇬🇪','🇦🇿','🇦🇲','🇹🇷','🇮🇷','🇮🇱','🇸🇦','🇦🇪','🇵🇹','🇬🇷','🇭🇺','🇷🇴','🇧🇬','🇸🇰','🇦🇹','🇨🇭','🇳🇱','🇧🇪','🇮🇪','🇮🇸','🇱🇹','🇱🇻','🇪🇪','🇿🇦','🇳🇬','🇪🇬','🇲🇦','🇰🇪','🇹🇭','🇻🇳','🇮🇩','🇵🇭','🇸🇬','🇲🇾','🇳🇿','🇨🇱','🇨🇴','🇵🇪','🇻🇪','🇨🇺']},
+  {name:'Разное', items:['💡','🔦','🕯','💰','💵','💳','🪙','📱','💻','🖥','📷','📸','📹','🎥','📞','☎️','📺','📻','🧭','⏰','⌛','📡','🔋','🔌','🔭','🔬','🩺','💊','💉','🧬','🪝','🧰','🛒','📚','📖','📝','✏️','🖊','🖋','📌','📍','📎','📐','📏','🗂','📁','📂','📄','📃','📑','📊','📈','📉','🗒','🗓','📆','📅','🗑','📇','📋','📌','📍','📎','🖇','✂️','🗃','🗄','🗑','🔒','🔓','🔏','🔐','🔑','🗝','🔨','🪓','⛏','⚒','🛠','🗡','⚔️','🛡','🔧','🪛','🔩','⚙️','🗜','⚖️','🦯','🔗','⛓','🪝','🧲','⚗️','🔮','🪄','💈','🔭','🔬','🩻','🪞','🪟','🧸','🪆','🖼','🧵','🪡','🧶','👓','🕶','🥽','🌡','⛱','🧨','✨','🎆','🎇','🎑','🎐','🎁','🎀','🎊','🎉','🎈','🎏','🎋','🎍','🪅','🪆','🎎','🎖','🏆','🥇','🥈','🥉','🏅','🎗','🎫','🎟','🎠','🎡','🎢','🪩','🎪','🤹','🎭','🩰','🎨','🖼','🎰','🎲','♟','🧩','🪅','💰','💸','🎯','🏹','🎣','🤿','🎽','🥊','⛸️','🛷','🛼','🪃']}
 ];
 
 // S объявлен выше (до пин-кода)
 
 // ═══ INIT ═══
 S.year = TODAY.y;
-// Показываем "21 марта 2026" вместо просто года
 const MG_FULL=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 document.getElementById('ynum').textContent = TODAY.d+' '+MG_FULL[TODAY.m]+' '+TODAY.y;
 const todayEl=document.getElementById('todayLabel');
 if(todayEl) todayEl.textContent='';
-// Month area hidden by default (controlled via CSS .active class)
 buildEmojiPanel();
 try{const c=localStorage.getItem('gvc');if(c){S.data=JSON.parse(c);renderGrid();renderCounters();}}catch(e){}
 const sv=localStorage.getItem('cellSize');
 if(sv){document.getElementById('sizeSlider').value=sv;document.documentElement.style.setProperty('--cs',sv+'px');}
+// Настройки загружаются per-user в loadUserSettings(), вызывается после определения S.user
+function loadUserSettings(user){
+  // Тема
+  var theme=localStorage.getItem('moodTheme_'+user)||localStorage.getItem('moodTheme')||'light';
+  applyTheme(theme);
+  // Вид пометок
+  var pm=localStorage.getItem('pipMode_'+user)||localStorage.getItem('pipMode')||'dot';
+  S.pipMode=pm;
+  document.getElementById('pipTabDot').classList.toggle('on',pm==='dot');
+  document.getElementById('pipTabEmoji').classList.toggle('on',pm==='emoji');
+  // Выходные
+  var sw=localStorage.getItem('showWeekends_'+user)==='1';
+  S.showWeekends=sw;
+  var btn=document.getElementById('wkndToggle');
+  btn.classList.toggle('on',sw);
+  btn.textContent=sw?'Вкл':'Выкл';
+  // Вид (год/месяц) — только применяем UI, renderMonth вызовется позже через renderCurrent
+  var savedView=localStorage.getItem('moodView_'+user)||'year';
+  S.view=savedView;
+  document.getElementById('vtabYear').classList.toggle('on', savedView==='year');
+  document.getElementById('vtabMonth').classList.toggle('on', savedView==='month');
+  document.getElementById('yearArea').classList.toggle('active', savedView==='year');
+  document.getElementById('monthArea').classList.toggle('active', savedView==='month');
+}
+loadUserSettings(S.user);
 loadYear();
 
 // ═══ EMOJI ═══
@@ -804,7 +1029,7 @@ function toggleTheme(){
   var isDark=document.documentElement.getAttribute('data-theme')==='dark';
   var next=isDark?'light':'dark';
   applyTheme(next);
-  localStorage.setItem('moodTheme',next);
+  localStorage.setItem('moodTheme_'+S.user,next);
 }
 function applyTheme(t){
   if(t==='dark'){
@@ -813,9 +1038,12 @@ function applyTheme(t){
     document.documentElement.removeAttribute('data-theme');
   }
 }
-// Восстанавливаем тему при старте
+// Восстанавливаем тему при старте (до определения юзера — берём глобальную или первого юзера)
 (function(){
-  var saved=localStorage.getItem('moodTheme')||'light';
+  var savedPin=localStorage.getItem('moodPin');
+  var savedUser=localStorage.getItem('moodUser');
+  var user=savedUser||'snaapsy';
+  var saved=localStorage.getItem('moodTheme_'+user)||localStorage.getItem('moodTheme')||'light';
   applyTheme(saved);
 })();
 
@@ -846,9 +1074,29 @@ async function loadYear(){
     const d=await jsonp({action:'getData',year:S.year});
     S.data=d;
     localStorage.setItem('gvc',JSON.stringify(d));
+    syncOffDaysFromServer();
     renderCurrent();setSyncing(false);
   }catch(e){setSyncing(false,true);toast('Ошибка: '+e.message,true);}
   finally{fadeOut();}
+}
+
+// Читаем 🗓 из заметок → наполняем localStorage выходными
+function syncOffDaysFromServer(){
+  ['snaapsy','winnieshe4k0'].forEach(function(user){
+    var udata=S.data[user]||{};
+    var serverDays=[];
+    Object.keys(udata).forEach(function(key){
+      var e=udata[key];
+      if(e&&e.note&&e.note.indexOf('🗓')!==-1){
+        var parts=key.split('-');
+        serverDays.push(S.year+'-'+parts[0]+'-'+parts[1]);
+      }
+    });
+    // Обновляем localStorage: убираем текущий год, добавляем серверные
+    var local=getUserOffDaysFor(user);
+    var otherYears=local.filter(function(k){return !k.startsWith(S.year+'-');});
+    setUserOffDaysFor(user, otherYears.concat(serverDays));
+  });
 }
 
 // ═══ GRID ═══
@@ -908,32 +1156,57 @@ function renderGrid(){
       const md2=e&&e.split2?e.split2:'';
       const em=e&&e.emoji?e.emoji:'';
       const rawNote=e&&e.note?e.note:'';
-      const noteDisplay=rawNote.replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').trim();
+      const noteDisplay=rawNote.replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').replace(/\n?🗓/g,'').trim();
       const nt=noteDisplay.length>0;
       const hasPhoto=!!(e&&e.photoUrl)||rawNote.indexOf('📎')!==-1;
+      const hasLoc=!!(e&&((e.locations&&e.locations.length)||e.locationUrl))||rawNote.indexOf('📍')!==-1;
       const isToday=S.year===TODAY.y&&m===TODAY.m&&d===TODAY.d;
       const isMerged=rs>1;
       const h=isMerged?(cs*rs+3*(rs-1))+'px':cs+'px';
       const isSplit=!!(md&&md2);
+      const isWeekend=isOffDay(S.year,m,d);
 
-      let cls='c'+(isToday?' today':'')+(isMerged?' merged':'')+(isSplit?' split':'');
+      let cls='c'+(isToday?' today':'')+(isMerged?' merged':'')+(isSplit?' split':'')+(isWeekend?' weekend':'');
       let style='height:'+h+';min-height:'+h+';max-height:'+h+';width:var(--cs);max-width:var(--cs)'+(isMerged?';border-radius:calc(var(--cs)/2)':'');
 
-      // Split background
-      let inner='';
+      // Build circle inner content (goes inside c-circ for overflow clipping)
+      let circInner = '';
       if(isSplit){
         const c1=getMoodColor(md), c2=getMoodColor(md2);
-        inner='<div class="split-bg" style="background:linear-gradient(135deg,'+c1+' 50%,'+c2+' 50%)"></div>';
+        circInner='<div class="split-bg" style="background:linear-gradient(135deg,'+c1+' 50%,'+c2+' 50%)"></div>';
       }
+      if(em) circInner+='<span class="cem">'+em+'</span>';
+
+      // Dot pip stays inside circle; emoji indicators go outside
+      let outsideInds = '';
+      // В годовом виде всегда используем точки (игнорируем pipMode)
+      // Логика: текст+фото+карта=full, текст+медиа=media, только медиа=media, только текст=обычная
+      const hasMedia = hasPhoto || hasLoc;
+      let pipClass = '';
+      
+      if(nt && hasPhoto && hasLoc){
+        // Всё есть → белая точка
+        pipClass = 'cpip cpip-full';
+      } else if(nt && hasMedia){
+        // Текст + медиа → заметная
+        pipClass = 'cpip cpip-media';
+      } else if(hasMedia){
+        // Только медиа (без текста) → заметная
+        pipClass = 'cpip cpip-media';
+      } else if(nt){
+        // Только текст → слабая
+        pipClass = 'cpip';
+      }
+      
+      if(pipClass) circInner += '<div class="'+pipClass+'"></div>';
 
       html+='<td class="'+cls+'"'
         +(md&&!isSplit?' data-m="'+md+'"':'')
         +(rs>1?' rowspan="'+rs+'"':'')
         +' style="'+style+'"'
         +' onclick="openCell('+m+','+d+')">'
-        +inner
-        +(em?'<span class="cem">'+em+'</span>':'')
-        +(nt?'<div class="cpip'+(hasPhoto?' cpip-photo':'')+'"></div>':'')
+        +'<div class="c-circ">'+circInner+'</div>'
+        +outsideInds
         +'</td>';
     }
     html+='</tr>';
@@ -984,10 +1257,30 @@ function openCell(m,d){
   const e=(S.data[S.user]&&S.data[S.user][m+'-'+d])||{};
   S.mood1=e.mood||null; S.mood2=e.split2||null;
   S.photoUrl=e.photoUrl||null; S.emoji=e.emoji||'';
-  // Локация: сначала из отдельного поля, потом из note через маркер 📍
+  // Локации: массив объектов {name,type,url}
   var _rawNote=e.note||'';
-  var _locMatch=_rawNote.match(/(?:^|\n)📍 ([^\n]+)/);
-  S.locationUrl=e.locationUrl||((_locMatch&&_locMatch[1])||null);
+  // Парсим все 📍 строки из заметки (формат: "📍 URL (name)" или "📍 URL")
+  var _locLines=_rawNote.match(/(?:^|\n)📍 ([^\n]+)/g)||[];
+  var _parsedLocs=_locLines.map(function(line){
+    var content=line.replace(/^[\s\S]*?📍 /,'').trim();
+    var parenMatch=content.match(/^(.+?) \((.+)\)$/);
+    var url=parenMatch?parenMatch[1]:content;
+    var name=parenMatch?parenMatch[2]:content;
+    // Извлекаем координаты из Yandex URL (?ll=lng,lat или &pt=lng,lat,...)
+    var cm=url.match(/[?&](?:ll|pt)=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+    var lng=cm?parseFloat(cm[1]):null;
+    var lat=cm?parseFloat(cm[2]):null;
+    return{name:name,type:'',url:url,lat:lat,lng:lng};
+  });
+  if(e.locations&&Array.isArray(e.locations)&&e.locations.length){
+    S.locations=e.locations;
+  } else if(_parsedLocs.length){
+    S.locations=_parsedLocs;
+  } else if(e.locationUrl){
+    S.locations=[{name:e.locationUrl,type:'',url:e.locationUrl}];
+  } else {
+    S.locations=[];
+  }
   S.splitOpen=!!S.mood2;
 
   const dt=new Date(S.year,m,d);
@@ -1086,7 +1379,7 @@ function showCard(e, dateStr, subStr, m, d){
   // Заметка — убираем строку с ссылкой на фото
   const noteWrap=document.getElementById('cardNoteWrap');
   const rawNote=(e.note||'');
-  const noteText=rawNote.replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').trim();
+  const noteText=rawNote.replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').replace(/\n?🗓/g,'').trim();
   if(noteText){
     noteWrap.innerHTML='<div class="slbl" style="margin-bottom:6px">Мнение о дне</div><p class="card-note">'+noteText.replace(/</g,'&lt;').replace(/\n/g,'<br>')+'</p>';
   } else {
@@ -1109,14 +1402,68 @@ function showCard(e, dateStr, subStr, m, d){
   var delBtn=document.getElementById('cardPhotoDel');
   if(delBtn) delBtn.style.display='none';
 
-  // Location
+  // Location list + map widget
   const locWrap=document.getElementById('cardLocationWrap');
-  if(S.locationUrl){
-    const embedUrl=makeYandexEmbed(S.locationUrl);
-    locWrap.innerHTML='<div class="card-location">'
-      +(embedUrl?'<iframe class="card-location-frame" src="'+embedUrl+'" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>':'')
-      +'<a class="card-location-link" href="'+S.locationUrl+'" target="_blank">📍 Открыть на Яндекс Картах</a>'
+  const locs=S.locations||[];
+  if(locs.length){
+    // Строим список
+    var listHtml='<div class="card-location"><div class="slbl" style="margin-bottom:8px">Места</div>'
+      +'<div class="card-location-list">'
+      +locs.map(function(loc){
+        var icon=locTypeIcon(loc.type||'');
+        return '<a class="card-location-item" href="'+(loc.url||'#')+'" target="_blank">'
+          +'<span class="card-location-pin">'+icon+'</span>'
+          +'<div class="card-location-text">'
+          +'<div class="card-location-name">'+escHtml(loc.name)+'</div>'
+          +(loc.type?'<div class="card-location-type">'+escHtml(loc.type)+'</div>':'')
+          +'</div>'
+          +'</a>';
+      }).join('')
       +'</div>';
+
+    // Для мест без координат — извлекаем из URL по аналогии с makeYandexEmbed
+    var locsResolved=locs.map(function(loc){
+      if(loc.lat&&loc.lng) return loc;
+      var url=loc.url||'';
+      var cm=url.match(/[?&]ll=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+      if(cm) return Object.assign({},loc,{lng:parseFloat(cm[1]),lat:parseFloat(cm[2])});
+      var pm=url.match(/[?&]pt=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+      if(pm) return Object.assign({},loc,{lng:parseFloat(pm[1]),lat:parseFloat(pm[2])});
+      return loc;
+    });
+    // Строим URL виджета Яндекс Карт с маркерами
+    var locsWithCoords=locsResolved.filter(function(l){return l.lat&&l.lng;});
+    var mapSrc=null;
+    if(locsWithCoords.length){
+      var ptParam=locsWithCoords.map(function(l,i){
+        var colors=['pm2rdm','pm2blm','pm2grm','pm2ym','pm2wm'];
+        return l.lng+','+l.lat+','+colors[i%colors.length];
+      }).join('~');
+      var avgLat=locsWithCoords.reduce(function(s,l){return s+l.lat;},0)/locsWithCoords.length;
+      var avgLng=locsWithCoords.reduce(function(s,l){return s+l.lng;},0)/locsWithCoords.length;
+      var zoom=locsWithCoords.length===1?15:12;
+      mapSrc='https://yandex.ru/map-widget/v1/?ll='+avgLng+','+avgLat+'&z='+zoom+'&pt='+ptParam+'&lang=ru_RU';
+    } else {
+      // Fallback: используем makeYandexEmbed для первой ссылки
+      var firstUrl=(locs[0]&&locs[0].url)||'';
+      if(firstUrl.indexOf('map-widget')!==-1){
+        mapSrc=firstUrl;
+      } else {
+        var mText=firstUrl.match(/[?&]text=([^&]+)/);
+        if(mText) mapSrc='https://yandex.ru/map-widget/v1/?text='+mText[1]+'&lang=ru_RU';
+        else {
+          var mOrg=firstUrl.match(/\/org\/[^\/]+\/(\d+)/);
+          if(mOrg) mapSrc='https://yandex.ru/map-widget/v1/?ol=biz&oid='+mOrg[1]+'&lang=ru_RU';
+          else if(firstUrl.indexOf('yandex')!==-1) mapSrc='https://yandex.ru/map-widget/v1/?lang=ru_RU';
+        }
+      }
+    }
+    if(mapSrc){
+      listHtml+='<iframe class="card-location-map" src="'+mapSrc+'" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>';
+    }
+
+    listHtml+='</div>';
+    locWrap.innerHTML=listHtml;
   } else {
     locWrap.innerHTML='';
   }
@@ -1149,7 +1496,7 @@ function showEditForm(e, dateStr, subStr, m, d){
 
   document.getElementById('sttl').innerHTML=dateStr;
   document.getElementById('ssub').textContent=subStr.replace(/<[^>]+>/g,'');
-  document.getElementById('noteIn').value=(e.note||'').replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').trim();
+  document.getElementById('noteIn').value=(e.note||'').replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').replace(/\n?🗓/g,'').trim();
   document.getElementById('emIn').textContent=S.emoji||'✦';
 
   document.getElementById('splitSection').classList.toggle('open',S.splitOpen);
@@ -1165,10 +1512,8 @@ function showEditForm(e, dateStr, subStr, m, d){
   lnk.style.display=S.photoUrl?'block':'none';
   if(S.photoUrl)lnk.href=S.photoUrl;
 
-  // Location
-  const locInput=document.getElementById('locInput');
-  locInput.value=S.locationUrl||'';
-  renderLocPreview(S.locationUrl);
+  // Location list
+  renderLocList();
 
   const mergeEl=(S.data.merged||[]).find(function(mg){return mg.user===S.user&&mg.month===m&&mg.day===d;});
   document.getElementById('mergeEnd').value=d+1;
@@ -1195,14 +1540,13 @@ function pickMood(which,id){
 }
 
 function clearForm(){
-  S.mood1=null;S.mood2=null;S.photoUrl=null;S.emoji='';S.locationUrl=null;
+  S.mood1=null;S.mood2=null;S.photoUrl=null;S.emoji='';S.locations=[];
   document.querySelectorAll('.mwrap').forEach(function(w){w.classList.remove('on');});
   document.getElementById('noteIn').value='';
   document.getElementById('emIn').textContent='✦';
   document.getElementById('pImg').style.display='none';
   document.getElementById('pLink').style.display='none';
-  document.getElementById('locInput').value='';
-  renderLocPreview(null);
+  renderLocList();
   clearSplit();
 }
 
@@ -1303,58 +1647,48 @@ async function uploadPhoto(filename,dataUrl){
 
 // ═══ LOCATION ═══
 var _mapPicked = null;
+var _mapSearchTimer = null;
 var _mapCurrentSearch = '';
 
-function makeYandexEmbed(url){
-  if(!url) return null;
-  if(url.indexOf('map-widget')!==-1) return url;
-  var ll = url.match(/ll=([0-9.-]+),([0-9.-]+)/);
-  if(ll) return 'https://yandex.ru/map-widget/v1/?ll='+ll[1]+','+ll[2]+'&z=15&lang=ru_RU&pt='+ll[1]+','+ll[2]+',pm2rdm';
-  var pt = url.match(/pt=([0-9.-]+),([0-9.-]+)/);
-  if(pt) return 'https://yandex.ru/map-widget/v1/?ll='+pt[1]+','+pt[2]+'&z=15&lang=ru_RU&pt='+pt[1]+','+pt[2]+',pm2rdm';
-  var txt = url.match(/[?&]text=([^&]+)/);
-  if(txt) return 'https://yandex.ru/map-widget/v1/?text='+txt[1]+'&lang=ru_RU';
-  var org = url.match(/\/org\/[^\/]+(\/(\d+))/);
-  if(org) return 'https://yandex.ru/map-widget/v1/?ol=biz&oid='+org[2]+'&lang=ru_RU';
-  if(url.indexOf('yandex')!==-1) return 'https://yandex.ru/map-widget/v1/?lang=ru_RU';
-  return null;
+// S.locations = array of {name, type, url}
+function getLocations(){ return S.locations||[]; }
+
+function renderLocList(){
+  var list=document.getElementById('locList');
+  if(!list) return;
+  var locs=getLocations();
+  if(!locs.length){list.innerHTML='';return;}
+  list.innerHTML=locs.map(function(loc,i){
+    return '<div class="loc-item">'
+      +'<span style="font-size:1rem;flex-shrink:0">📍</span>'
+      +'<div class="loc-item-text">'
+      +'<div class="loc-item-name">'+escHtml(loc.name)+'</div>'
+      +(loc.type?'<div class="loc-item-type">'+escHtml(loc.type)+'</div>':'')
+      +'</div>'
+      +'<button class="loc-item-del" onclick="removeLoc('+i+')">✕</button>'
+      +'</div>';
+  }).join('');
 }
 
-function renderLocPreview(url){
-  var preview=document.getElementById('locPreview');
-  var locClear=document.getElementById('locClear');
-  if(!url){
-    if(preview) preview.style.display='none';
-    if(locClear) locClear.style.display='none';
-    return;
-  }
-  if(locClear) locClear.style.display='inline';
-  if(preview){
-    preview.style.display='block';
-    var frame=document.getElementById('locFrame');
-    var lnk=document.getElementById('locLink');
-    var embedUrl=makeYandexEmbed(url);
-    if(embedUrl&&frame) frame.src=embedUrl;
-    if(lnk) lnk.href=url;
-  }
+function removeLoc(i){
+  if(!S.locations) return;
+  S.locations.splice(i,1);
+  renderLocList();
 }
 
-function onLocInput(){
-  var val=document.getElementById('locInput').value.trim();
-  S.locationUrl=val||null;
-  renderLocPreview(S.locationUrl);
-}
-
-function clearLocation(){
-  S.locationUrl=null;
-  document.getElementById('locInput').value='';
-  renderLocPreview(null);
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function locTypeIcon(type){
+  if(!type) return '📍';
+  // если тип уже содержит эмодзи — возвращаем его
+  if(/\p{Emoji}/u.test(type)) return type.trim().charAt(0);
+  return '📍';
 }
 
 function openMapPicker(){
   _mapPicked=null;
   _mapCurrentSearch='';
   document.getElementById('mapPickedBar').style.display='none';
+  document.getElementById('mapResults').style.display='none';
   document.getElementById('mapSearchInput').value='';
   document.getElementById('mapHintBar').textContent='🔍 Найди место через поиск выше';
   var ov=document.getElementById('mapDblOverlay');
@@ -1376,21 +1710,104 @@ function doMapSearch(){
   _mapCurrentSearch=q;
   _mapPicked=null;
   document.getElementById('mapPickedBar').style.display='none';
+  
+  // Показываем загрузку в списке результатов
+  var resultsEl=document.getElementById('mapResults');
+  resultsEl.style.display='block';
+  resultsEl.innerHTML='<div class="map-result-loading"><div class="spin"></div>Ищу места…</div>';
+  
+  // Используем Nominatim (OpenStreetMap) — бесплатный геокодер без ключа
   var encoded=encodeURIComponent(q);
-  document.getElementById('mapPickerFrame').src=
-    'https://yandex.ru/map-widget/v1/?text='+encoded+'&lang=ru_RU&scroll=true&mode=search';
-  // Через 1.2 сек показываем плашку + активируем оверлей для двойного клика
-  setTimeout(function(){
-    if(_mapCurrentSearch!==q) return;
-    var url='https://yandex.ru/maps/?text='+encoded;
-    _mapPicked={url:url,label:q,embedUrl:'https://yandex.ru/map-widget/v1/?text='+encoded+'&lang=ru_RU'};
-    showMapPickedBar(q);
-    // Показываем оверлей для двойного клика — он полупрозрачный и не мешает скроллу
-    var ov=document.getElementById('mapDblOverlay');
-    if(ov) ov.style.display='block';
-    // Обновляем подсказку
-    document.getElementById('mapHintBar').textContent='✌️ Двойной тап — прикрепить место';
-  },1200);
+  var url='https://nominatim.openstreetmap.org/search?q='+encoded+'&format=json&limit=8&accept-language=ru&addressdetails=1';
+
+  fetch(url,{headers:{'Accept':'application/json','Accept-Language':'ru'}})
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json();
+    })
+    .then(function(data){
+      if(!data||!data.length){
+        resultsEl.innerHTML='<div class="map-result-loading">Ничего не найдено</div>';
+        return;
+      }
+
+      var results=data.slice(0,8).map(function(item){
+        var lat=parseFloat(item.lat)||null;
+        var lng=parseFloat(item.lon)||null;
+        // Строим читабельное имя
+        var addr=item.address||{};
+        var name=item.name||addr.amenity||addr.road||addr.suburb||item.display_name.split(',')[0]||'Место';
+        var desc=item.display_name||'';
+        // Сокращаем описание до первых 2 частей после имени
+        if(desc.startsWith(name)){
+          desc=desc.slice(name.length).replace(/^,\s*/,'');
+          var parts=desc.split(',');
+          desc=parts.slice(0,2).join(', ').trim();
+        }
+        var kind=item.type||item.class||'';
+        var mapUrl=lat&&lng
+          ?'https://yandex.ru/maps/?ll='+lng+','+lat+'&z=16&pt='+lng+','+lat+',pm2rdm&text='+encodeURIComponent(name)
+          :'https://yandex.ru/maps/?text='+encodeURIComponent(name);
+        return{name:name,desc:desc,kind:kind,lat:lat,lng:lng,url:mapUrl};
+      });
+
+      resultsEl.innerHTML=results.map(function(r,i){
+        var icon='📍';
+        var k=r.kind;
+        if(k==='house'||k==='residential')icon='🏠';
+        else if(k==='street'||k==='road')icon='🛣';
+        else if(k==='city'||k==='town'||k==='village')icon='🏙';
+        else if(k==='restaurant'||k==='cafe'||k==='bar')icon='🍽';
+        else if(k==='hotel'||k==='hostel')icon='🏨';
+        else if(k==='park'||k==='garden')icon='🌳';
+        else if(k==='station'||k==='subway')icon='🚇';
+        else if(k==='airport')icon='✈️';
+        else if(k==='shop'||k==='mall')icon='🛍';
+        return '<div class="map-result-item" onclick="selectSearchResult('+i+')">'
+          +'<span class="map-result-icon">'+icon+'</span>'
+          +'<div class="map-result-text">'
+          +'<div class="map-result-name">'+escHtml(r.name)+'</div>'
+          +(r.desc?'<div class="map-result-type">'+escHtml(r.desc)+'</div>':'')
+          +'</div>'
+          +'</div>';
+      }).join('');
+
+      resultsEl._results=results;
+
+      if(results[0]&&results[0].lat&&results[0].lng){
+        var r=results[0];
+        document.getElementById('mapPickerFrame').src=
+          'https://yandex.ru/map-widget/v1/?ll='+r.lng+','+r.lat+'&z=15&lang=ru_RU&scroll=true&pt='+r.lng+','+r.lat+',pm2rdm';
+      }
+    })
+    .catch(function(){
+      resultsEl.innerHTML='<div class="map-result-loading">Не удалось найти — проверь соединение</div>';
+    });
+}
+
+function selectSearchResult(idx){
+  var resultsEl=document.getElementById('mapResults');
+  var results=resultsEl._results||[];
+  var r=results[idx];
+  if(!r)return;
+  
+  // Подсвечиваем выбранный элемент
+  resultsEl.querySelectorAll('.map-result-item').forEach(function(el,i){
+    el.classList.toggle('selected',i===idx);
+  });
+  
+  // Сохраняем выбор
+  _mapPicked={url:r.url,label:r.name,desc:r.desc||'',embedUrl:'',lat:r.lat,lng:r.lng};
+  
+  // Показываем на карте
+  if(r.lat&&r.lng){
+    document.getElementById('mapPickerFrame').src=
+      'https://yandex.ru/map-widget/v1/?ll='+r.lng+','+r.lat+'&z=16&lang=ru_RU&scroll=true&pt='+r.lng+','+r.lat+',pm2rdm';
+  }
+  
+  // Показываем кнопку прикрепления
+  showMapPickedBar(r.name);
+  document.getElementById('mapHintBar').textContent='✅ Место выбрано — нажми "Прикрепить"';
 }
 
 function showMapPickedBar(label){
@@ -1402,9 +1819,18 @@ function showMapPickedBar(label){
 
 function attachPickedLocation(){
   if(!_mapPicked) return;
-  S.locationUrl=_mapPicked.url;
-  document.getElementById('locInput').value=_mapPicked.label||_mapPicked.url;
-  renderLocPreview(_mapPicked.url);
+  if(!S.locations) S.locations=[];
+  // Строим читабельное имя: "Название (город, адрес)" или просто "Название"
+  var locName=_mapPicked.label||_mapPicked.url||'Место';
+  if(_mapPicked.desc&&_mapPicked.desc!==locName) locName=locName+' ('+_mapPicked.desc+')';
+  S.locations.push({
+    name:locName,
+    type:'',
+    url:_mapPicked.url||'',
+    lat:_mapPicked.lat||null,
+    lng:_mapPicked.lng||null
+  });
+  renderLocList();
   var ov=document.getElementById('mapDblOverlay');
   if(ov) ov.style.display='none';
   closeMapPicker();
@@ -1464,16 +1890,26 @@ async function saveDay(){
   btn.disabled=true;btn.textContent='Сохраняю…';
   const key=m+'-'+d;
 
-  // Чистим текст от старых маркеров (📎 добавляет сам сервер, 📍 добавляем мы)
-  let noteClean = noteRaw.replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').trim();
-  // В note пишем ТОЛЬКО маркер 📍 для локации — 📎 сервер добавит сам через photoUrl
+  // Чистим текст от старых маркеров и 🗓
+  let noteClean = noteRaw.replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').replace(/\n?🗓/g,'').trim();
   let noteToSave = noteClean;
-  if(S.locationUrl) noteToSave += (noteToSave?'\n':'')+'📍 '+S.locationUrl;
+  // Добавляем 📍 маркеры с именем места для совместимости с сервером
+  (S.locations||[]).forEach(function(loc){
+    if(loc.url){
+      var marker='📍 '+loc.url+(loc.name&&loc.name!==loc.url?' ('+loc.name+')':'');
+      noteToSave += (noteToSave?'\n':'')+marker;
+    }
+  });
+  // Добавляем 🗓 если день помечен выходным (синхронизация через сервер)
+  var _offKey=S.year+'-'+m+'-'+d;
+  if(getUserOffDaysFor(S.user).indexOf(_offKey)!==-1){
+    noteToSave += (noteToSave?'\n':'')+'🗓';
+  }
 
-  if(S.mood1||noteClean||emoji||S.photoUrl||S.mood2||S.locationUrl){
+  const hasLoc = (S.locations||[]).length>0;
+  if(S.mood1||noteClean||emoji||S.photoUrl||S.mood2||hasLoc){
     if(!S.data[S.user])S.data[S.user]={};
-    // В локальном кеше note содержит только 📍 (без 📎 — его добавит сервер при getData)
-    S.data[S.user][key]={mood:S.mood1,note:noteToSave,emoji,split2:S.mood2,photoUrl:S.photoUrl||'',locationUrl:S.locationUrl||''};
+    S.data[S.user][key]={mood:S.mood1,note:noteToSave,emoji,split2:S.mood2,photoUrl:S.photoUrl||'',locations:S.locations||[],locationUrl:(S.locations&&S.locations[0])?S.locations[0].url:''};
   }else{if(S.data[S.user])delete S.data[S.user][key];}
   localStorage.setItem('gvc',JSON.stringify(S.data));
   renderCurrent();
@@ -1492,7 +1928,7 @@ async function saveDay(){
 }
 
 // ═══ VIEW SWITCH ═══
-S.view = 'year';
+if(!S.view) S.view = 'year';
 S.monthView = {m: TODAY.m, y: TODAY.y};
 
 function renderCurrent(){
@@ -1503,6 +1939,7 @@ function renderCurrent(){
 
 function switchView(v){
   S.view = v;
+  localStorage.setItem('moodView_'+S.user, v);
   document.getElementById('vtabYear').classList.toggle('on', v==='year');
   document.getElementById('vtabMonth').classList.toggle('on', v==='month');
   document.getElementById('yearArea').classList.toggle('active', v==='year');
@@ -1525,7 +1962,14 @@ function renderMonth(){
   const dim = [...DIM]; if(leap) dim[1]=29;
 
   const MONTHS_FULL = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-  document.getElementById('monthTitle').innerHTML = '<em>'+MONTHS_FULL[m]+'</em> '+y;
+  var _dd=MONTH_DECOS[m]||[[],[]];
+  var _mkDeco=function(arr,base){return arr.map(function(ic,i){return'<span class="mdeco" style="animation-delay:'+(base+i*0.65)+'s">'+ic+'</span>';}).join('');};
+  document.getElementById('monthTitle').innerHTML =
+    '<span class="mdeco-wrap">'
+    +_mkDeco(_dd[0],0)
+    +'<em>'+MONTHS_FULL[m]+'</em> '+y
+    +_mkDeco(_dd[1],0.4)
+    +'</span>';
 
   const firstDay = new Date(y, m, 1).getDay();
   const startOffset = (firstDay + 6) % 7; // monday-based: 0=mon..6=sun
@@ -1576,11 +2020,14 @@ function renderMonth(){
         const md2 = e&&e.split2 ? e.split2 : '';
         const em = e&&e.emoji ? e.emoji : '';
         const rawNote = e&&e.note ? e.note : '';
-        const noteText = rawNote.replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').trim();
+        const noteText = rawNote.replace(/\n?📎 .+/g,'').replace(/\n?📍 .+/g,'').replace(/\n?🗓/g,'').trim();
         const nt = noteText.length > 0;
         const hasPhoto = !!(e&&e.photoUrl) || rawNote.indexOf('📎') !== -1;
+        const hasLoc = !!(e&&((e.locations&&e.locations.length)||e.locationUrl)) || rawNote.indexOf('📍') !== -1;
         const isToday = y===TODAY.y && m===TODAY.m && day===TODAY.d;
         const isSplit = !!(md && md2);
+        const isWeekend = isOffDay(y,m,day);
+        const isStdWeekend = isWeekend; // alias for td class
 
         let circleStyle = '';
         let circleClass = 'mday-circle';
@@ -1595,10 +2042,22 @@ function renderMonth(){
           circleStyle = 'background:rgba(26,20,16,.08)';
         }
         if(em) circleInner += '<span class="mday-cem">'+em+'</span>';
-        if(nt) circleInner += '<div class="mday-pip'+(hasPhoto?' photo':'')+'"></div>';
 
-        html += '<td class="mday'+(isToday?' today-cell mday-today':'')+'" onclick="openCell('+m+','+day+')">'
-          + '<div class="mday-num">'+day+'</div>'
+        // Pip / indicators depending on mode
+        let dayNumHtml = '';
+        if(S.pipMode==='emoji'){
+          let indicators = '';
+          if(hasLoc) indicators += '📍';
+          if(hasPhoto) indicators += '📷';
+          dayNumHtml = '<div class="mday-num">'+day+(indicators?'<span class="mday-indicators">'+indicators+'</span>':'')+'</div>';
+        } else {
+          // dot mode
+          if(nt) circleInner += '<div class="mday-pip'+(hasPhoto?' photo':'')+'"></div>';
+          dayNumHtml = '<div class="mday-num">'+day+'</div>';
+        }
+
+        html += '<td class="mday'+(isToday?' today-cell mday-today':'')+(isWeekend?' weekend':'')+'" onclick="openCell('+m+','+day+')">'
+          + dayNumHtml
           + '<div class="'+circleClass+'" style="'+circleStyle+'">'+circleInner+'</div>'
           + (noteText ? '<div class="mday-note">'+noteText.replace(/</g,'&lt;').replace(/\n/g,' ')+'</div>' : '')
           + '</td>';
@@ -1612,10 +2071,212 @@ function renderMonth(){
   document.getElementById('mcal').innerHTML = html;
 }
 
+// ═══ CUSTOM OFF DAYS ═══
+var offCalState = {y:TODAY.y, m:TODAY.m, editUser:''};
+
+// Чтение/запись для конкретного пользователя
+function getUserOffDaysFor(user){
+  try{return JSON.parse(localStorage.getItem('customOffDays_'+user)||'[]');}catch(e){return [];}
+}
+function setUserOffDaysFor(user,arr){
+  localStorage.setItem('customOffDays_'+user, JSON.stringify(arr));
+}
+// Для рендеринга — всегда читаем данные просматриваемого пользователя (S.user)
+function getUserOffDays(){ return getUserOffDaysFor(S.user); }
+
+// isOffDay: оба типа контролируются S.showWeekends
+function isOffDay(year,month,day){
+  if(!S.showWeekends) return false;
+  if(isRuWeekend(year,month,day)) return true;
+  return getUserOffDaysFor(S.user).indexOf(year+'-'+month+'-'+day)!==-1;
+}
+
+function openOffDaysManager(){
+  // Менеджер всегда редактирует выходные АВТОРИЗОВАННОГО пользователя, не просматриваемого
+  offCalState.editUser = localStorage.getItem(USER_KEY) || S.user;
+  offCalState.y = S.year || TODAY.y;
+  offCalState.m = TODAY.m;
+  closeSettings();
+  var u = offCalState.editUser;
+  document.getElementById('offDaysUserLabel').textContent = u==='snaapsy'?'🐺 Snaapsy — твои выходные':'🐻 Winnie — твои выходные';
+  renderOffCal();
+  renderOffDaysList();
+  document.getElementById('offDaysOv').classList.add('open');
+}
+function closeOffDaysManager(){
+  document.getElementById('offDaysOv').classList.remove('open');
+}
+function offDaysBgClose(e){if(e.target.id==='offDaysOv')closeOffDaysManager();}
+
+function offCalNav(dir){
+  offCalState.m += dir;
+  if(offCalState.m<0){offCalState.m=11;offCalState.y--;}
+  if(offCalState.m>11){offCalState.m=0;offCalState.y++;}
+  renderOffCal();
+}
+
+function renderOffCal(){
+  const y=offCalState.y, m=offCalState.m;
+  const MONTHS_FULL=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  document.getElementById('offCalTitle').textContent = MONTHS_FULL[m]+' '+y;
+  const leap=(y%4===0&&y%100!==0)||y%400===0;
+  const dim=[...DIM]; if(leap)dim[1]=29;
+  const totalDays=dim[m];
+  const firstDay=new Date(y,m,1).getDay();
+  const startOffset=(firstDay+6)%7;
+  const days=getUserOffDaysFor(offCalState.editUser);
+
+  let html='<thead><tr>';
+  ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(function(d){html+='<th>'+d+'</th>';});
+  html+='</tr></thead><tbody><tr>';
+
+  let day=1, col=0;
+  for(let i=0;i<startOffset;i++){html+='<td class="empty-d"></td>';col++;}
+  while(day<=totalDays){
+    if(col===7){html+='</tr><tr>';col=0;}
+    const key=y+'-'+m+'-'+day;
+    const isSel=days.indexOf(key)!==-1;
+    const isToday=y===TODAY.y&&m===TODAY.m&&day===TODAY.d;
+    const dow=new Date(y,m,day).getDay();
+    let cls='ocday';
+    if(isSel) cls+=' selected';
+    else if(dow===0||dow===6) cls+=' wknd';
+    if(isToday) cls+=' today-d';
+    html+='<td class="'+cls+'" onclick="toggleOffDay('+y+','+m+','+day+')">'+day+'</td>';
+    day++;col++;
+  }
+  while(col>0&&col<7){html+='<td class="empty-d"></td>';col++;}
+  html+='</tr></tbody>';
+  document.getElementById('offCal').innerHTML=html;
+}
+
+function toggleOffDay(y,m,d){
+  var user=offCalState.editUser;
+  var days=getUserOffDaysFor(user);
+  var key=y+'-'+m+'-'+d;
+  var idx=days.indexOf(key);
+  var adding=idx===-1;
+  if(adding){days.push(key);}else{days.splice(idx,1);}
+  setUserOffDaysFor(user,days);
+  if(y===S.year) syncOffDayNote(user,m,d,adding);
+  renderOffCal();
+  renderOffDaysList();
+  renderCurrent();
+}
+
+const OFF_MONTHS_GEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+
+function renderOffDaysList(){
+  var days=getUserOffDaysFor(offCalState.editUser);
+  var el=document.getElementById('offDaysList');
+  if(!days.length){
+    el.innerHTML='<div class="offdays-empty">Нет добавленных дней</div>';
+    return;
+  }
+  var sorted=days.slice().sort(function(a,b){
+    var ap=a.split('-'),bp=b.split('-');
+    return (ap[0]-bp[0])||((ap[1]-bp[1]))||((ap[2]-bp[2]));
+  });
+  el.innerHTML=sorted.map(function(key){
+    var p=key.split('-');
+    var y=parseInt(p[0]),m=parseInt(p[1]),d=parseInt(p[2]);
+    var label=d+' '+OFF_MONTHS_GEN[m]+' '+y;
+    return '<div class="offdays-item">'
+      +'<span class="offdays-item-date">'+label+'</span>'
+      +'<button class="offdays-item-del" onclick="removeOffDay(\''+key+'\')">✕</button>'
+      +'</div>';
+  }).join('');
+}
+
+function removeOffDay(key){
+  var user=offCalState.editUser;
+  var days=getUserOffDaysFor(user);
+  var idx=days.indexOf(key);
+  if(idx!==-1)days.splice(idx,1);
+  setUserOffDaysFor(user,days);
+  // Синхронизируем удаление через 🗓
+  var parts=key.split('-');
+  var ky=parseInt(parts[0]),km=parseInt(parts[1]),kd=parseInt(parts[2]);
+  if(ky===S.year) syncOffDayNote(user,km,kd,false);
+  renderOffCal();
+  renderOffDaysList();
+  renderCurrent();
+}
+
+// Синхронизирует 🗓 маркер в заметке дня на сервер
+function syncOffDayNote(user,month,day,isOff){
+  var udata=S.data[user]||{};
+  var existing=udata[month+'-'+day]||{};
+  var note=(existing.note||'').replace(/\n?🗓/g,'').trim();
+  if(isOff) note=(note?note+'\n':'')+'🗓';
+  if(!S.data[user]) S.data[user]={};
+  if(note||existing.mood||existing.emoji||existing.photoUrl||(existing.locations&&existing.locations.length)){
+    if(!S.data[user][month+'-'+day]) S.data[user][month+'-'+day]={};
+    S.data[user][month+'-'+day].note=note;
+  } else if(!isOff&&S.data[user][month+'-'+day]){
+    delete S.data[user][month+'-'+day];
+  }
+  localStorage.setItem('gvc',JSON.stringify(S.data));
+  jsonp({action:'saveDay',pin:localStorage.getItem(PIN_KEY)||'',
+    user:user,month:month,day:day,
+    mood:existing.mood||'',
+    note:encodeURIComponent(note),
+    emoji:encodeURIComponent(existing.emoji||''),
+    split2:existing.split2||''
+  }).catch(function(){});
+}
+
+// ═══ RUSSIAN WEEKENDS & HOLIDAYS ═══
+// Фиксированные праздники РФ (месяц 0-based, день)
+const RU_HOLIDAYS_FIXED=[
+  [0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7], // 1-7 янв
+  [0,8],  // 8 янв
+  [1,23], // 23 фев
+  [2,8],  // 8 мар
+  [4,1],  // 1 мая
+  [4,9],  // 9 мая
+  [5,12], // 12 июн
+  [10,4], // 4 ноя
+];
+function isRuWeekend(year,month,day){
+  var dow=new Date(year,month,day).getDay(); // 0=вс,6=сб
+  if(dow===0||dow===6) return true;
+  for(var i=0;i<RU_HOLIDAYS_FIXED.length;i++){
+    if(RU_HOLIDAYS_FIXED[i][0]===month&&RU_HOLIDAYS_FIXED[i][1]===day) return true;
+  }
+  return false;
+}
+
+// ═══ SETTINGS ═══
+function openSettings(){
+  document.getElementById('settingsPanel').classList.add('open');
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+function closeSettings(){
+  document.getElementById('settingsPanel').classList.remove('open');
+  document.getElementById('settingsOverlay').classList.remove('open');
+}
+function setPipMode(mode){
+  S.pipMode=mode;
+  localStorage.setItem('pipMode_'+S.user,mode);
+  document.getElementById('pipTabDot').classList.toggle('on',mode==='dot');
+  document.getElementById('pipTabEmoji').classList.toggle('on',mode==='emoji');
+  renderCurrent();
+}
+function toggleWeekends(){
+  S.showWeekends=!S.showWeekends;
+  localStorage.setItem('showWeekends_'+S.user,S.showWeekends?'1':'0');
+  var btn=document.getElementById('wkndToggle');
+  btn.classList.toggle('on',S.showWeekends);
+  btn.textContent=S.showWeekends?'Вкл':'Выкл';
+  renderCurrent();
+}
+
 // ═══ NAV ═══
 function switchUser(u){
   S.user=u;
   document.querySelectorAll('.utab').forEach(function(b){b.classList.toggle('on',b.dataset.u===u);});
+  loadUserSettings(u);
   renderCurrent();
 }
 
