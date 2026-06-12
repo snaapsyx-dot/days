@@ -1,4 +1,4 @@
-const CACHE = 'days-v2';
+const CACHE = 'days-v3';
 const ASSETS = ['./', './index.html', './favicon.svg'];
 
 self.addEventListener('install', e => {

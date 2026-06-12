@@ -896,7 +896,7 @@ function pinSubmit(){
   }
 })();
 
-const API = 'https://script.google.com/macros/s/AKfycbzhk9z_iFA_capUl2GDvSSKNowG3URcqZd3djBVVgA658OgIVxDPMVo_Sr6YJljwW4/exec';
+const API = 'https://script.google.com/macros/s/AKfycbxTbjueM7XqFpcPCnu9QB_U05546rD2PVPANjOmNQFOV071WYZDIGgCBz7_jXHEF8Jf/exec';
 
 const MOOD_COLORS = {awful:'#ff0000',bad:'#ff9900',normal:'#e6e600',good:'#00cc00',super:'#0000ff'};
 // Декорации для каждого месяца: [левые иконки, правые иконки]
@@ -1021,9 +1021,10 @@ function resizeCells(val){
 }
 
 // ═══ JSONP ═══
+var _jsonpSeq=0;
 function jsonp(params){
   return new Promise(function(resolve,reject){
-    const cb='_cb'+Date.now();
+    const cb='_cb'+Date.now()+'_'+(++_jsonpSeq);
     const timer=setTimeout(function(){delete window[cb];reject(new Error('Timeout'));},20000);
     window[cb]=function(data){clearTimeout(timer);delete window[cb];if(data.error)reject(new Error(data.error));else resolve(data);};
     params.callback=cb;
@@ -1032,6 +1033,18 @@ function jsonp(params){
     tag.onerror=function(){clearTimeout(timer);delete window[cb];reject(new Error('Script load error'));};
     document.head.appendChild(tag);
     setTimeout(function(){try{document.head.removeChild(tag);}catch(e){}},25000);
+  });
+}
+
+// ═══ POST (для записи длинных данных — нет лимита длины URL) ═══
+// JSONP уходит GET'ом и обрезает длинные заметки в URL → текст терялся.
+// Запись (saveDay) шлём POST'ом с сырым JSON-телом: без лимита и без двойного кодирования.
+function postSave(payload){
+  return fetch(API,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
   });
 }
 
@@ -1916,11 +1929,11 @@ async function saveDay(){
   renderCurrent();
   setSyncing(true);
   try{
-    // На сервер: note с маркером 📍, photoUrl передаём отдельно (сервер сам вшьёт 📎)
-    const res=await jsonp({action:'saveDay',pin:localStorage.getItem(PIN_KEY)||'',user:S.user,month:m,day:d,
-      mood:S.mood1||'',note:encodeURIComponent(noteToSave),
-      emoji:encodeURIComponent(emoji),split2:S.mood2||''});
-    if(res&&res.error==='Unauthorized'){localStorage.removeItem(PIN_KEY);location.reload();return;}
+    // На сервер POST'ом: заметка любой длины, сырой текст без кодирования.
+    // photoUrl передаётся отдельно (сервер сам вшьёт 📎), маркеры 📍/🗓 уже внутри note.
+    await postSave({action:'saveDay',pin:localStorage.getItem(PIN_KEY)||'',user:S.user,month:m,day:d,year:S.year,
+      mood:S.mood1||'',note:noteToSave,
+      emoji:emoji,split2:S.mood2||''});
     setSyncing(false);toast('Сохранено ✓');
   }catch(e){setSyncing(false,true);toast('Ошибка: '+e.message,true);}
   btn.disabled=false;btn.textContent='Сохранить';
@@ -2218,11 +2231,11 @@ function syncOffDayNote(user,month,day,isOff){
     delete S.data[user][month+'-'+day];
   }
   localStorage.setItem('gvc',JSON.stringify(S.data));
-  jsonp({action:'saveDay',pin:localStorage.getItem(PIN_KEY)||'',
-    user:user,month:month,day:day,
+  postSave({action:'saveDay',pin:localStorage.getItem(PIN_KEY)||'',
+    user:user,month:month,day:day,year:S.year,
     mood:existing.mood||'',
-    note:encodeURIComponent(note),
-    emoji:encodeURIComponent(existing.emoji||''),
+    note:note,
+    emoji:existing.emoji||'',
     split2:existing.split2||''
   }).catch(function(){});
 }
